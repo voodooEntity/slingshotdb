@@ -26,17 +26,16 @@
 ---
 ### Route: /v1
 
-**Path:** /getEntityByTypeAndId 
-**Type:** GET  
-**Required Parameters:** 
-* `GET` id int
-* `GET` type string
-**Optional parameters:** 
-* `GET` traverse int
+**Path:** /getEntityByTypeAndId     
+**Type:** GET      
+**Required Parameters:**    
+* `GET` id int    
+* `GET` type string    
+**Optional parameters:**     
+* `GET` traverse int    
 **Body:** none    
-**Return:**
+**Return:**    
 ```javascript
-{
 {
   "Entities": [
     {
@@ -91,17 +90,17 @@
   ]
 }
 ```
-**Errors:** 
-* TODO
+**Errors:**     
+* TODO    
 ___ 
-**Path:** /getEntitiesByTypeAndValue 
-**Type:** GET  
-**Required Parameters:**  
-* `GET` value string
-* `GET` type string
-**Optional parameters:** none  
-**Body:**  none    
-**Return:**
+**Path:** /getEntitiesByTypeAndValue     
+**Type:** GET      
+**Required Parameters:**      
+* `GET` value string    
+* `GET` type string    
+**Optional parameters:** none      
+**Body:**  none        
+**Return:**    
 ```javascript
 {
   "Entities": [
@@ -122,13 +121,68 @@ ___
 **Errors:**  
 * TODO
 ___
-**Path:** /getEntitiesByType 
-**Type:** GET  
-**Required Parameters:**  
-* `GET` type string
-**Optional parameters:** none  
+**Path:** /getEntitiesByType     
+**Type:** GET      
+**Required Parameters:**      
+* `GET` type string    
+**Optional parameters:** none      
+**Body:**  none        
+**Return:**    
+```javascript
+{
+  "Entities": [
+    {
+      "ID": 1,
+      "Type": "IP",
+      "Context": "Pentest",
+      "Value": "127.0.0.1",
+      "Properties": {
+        "created_at": "sometimestamp"
+      },
+      "Children": []
+    }
+  ],
+  "Relations": []
+}
+```
+**Errors:**      
+* TODO    
+___
+**Path:** /getEntitiesByValue    
+**Type:** GET      
+**Required Parameters:**      
+* `GET` value string    
+**Optional parameters:** none      
+**Body:**  none        
+**Return:**    
+```javascript
+{
+  "Entities": [
+    {
+      "ID": 1,
+      "Type": "IP",
+      "Context": "Pentest",
+      "Value": "127.0.0.1",
+      "Properties": {
+        "created_at": "sometimestamp"
+      },
+      "Children": []
+    }
+  ],
+  "Relations": []
+}
+```
+**Errors:**      
+* TODO    
+___
+**Path:** /getParentEntities     
+**Type:** GET      
+**Required Parameters:**      
+* `GET` type string    
+* `GET` id int    
+**Optional parameters:** none      
 **Body:**  none    
-**Return:**
+**Return:**    
 ```javascript
 {
   "Entities": [
@@ -149,69 +203,14 @@ ___
 **Errors:**  
 * TODO
 ___
-**Path:** /getEntitiesByValue
-**Type:** GET  
-**Required Parameters:**  
-* `GET` value string
-**Optional parameters:** none  
-**Body:**  none    
-**Return:**
-```javascript
-{
-  "Entities": [
-    {
-      "ID": 1,
-      "Type": "IP",
-      "Context": "Pentest",
-      "Value": "127.0.0.1",
-      "Properties": {
-        "created_at": "sometimestamp"
-      },
-      "Children": []
-    }
-  ],
-  "Relations": []
-}
-```
-**Errors:**  
-* TODO
-___
-**Path:** /getParentEntities 
-**Type:** GET  
-**Required Parameters:**  
-* `GET` type string
-* `GET` id int
-**Optional parameters:** none  
-**Body:**  none    
-**Return:**
-```javascript
-{
-  "Entities": [
-    {
-      "ID": 1,
-      "Type": "IP",
-      "Context": "Pentest",
-      "Value": "127.0.0.1",
-      "Properties": {
-        "created_at": "sometimestamp"
-      },
-      "Children": []
-    }
-  ],
-  "Relations": []
-}
-```
-**Errors:**  
-* TODO
-___
-**Path:** /getChildEntities 
-**Type:** GET  
-**Required Parameters:**  
-* `GET` type string
-* `GET` id int
-**Optional parameters:** none  
-**Body:**  none    
-**Return:**
+**Path:** /getChildEntities     
+**Type:** GET      
+**Required Parameters:**      
+* `GET` type string    
+* `GET` id int    
+**Optional parameters:** none      
+**Body:**  none        
+**Return:**    
 ```javascript
 {
   "Entities": [
@@ -242,11 +241,11 @@ ___
 **Errors:**  
 * TODO
 ___
-**Path:** /createEntity 
+**Path:** /createEntity     
 **Type:** POST     
 **Required Parameters:** none     
 **Optional parameters:** none     
-**Body:**  
+**Body:**      
 ```javascript
 {
 	"Type" : "Person",
@@ -257,7 +256,7 @@ ___
 	"Context" : "manifesto"
 }
 ```
-**Return:** 
+**Return:**     
 ```javascript
 {
   "Entities": [
@@ -275,14 +274,14 @@ ___
   "Relations": []
 }
 ```
-**Errors:**  
-* TODO
+**Errors:**      
+* TODO    
 ___
-**Path:** /mapJson 
+**Path:** /mapJson     
 **Type:** POST     
 **Required Parameters:** none     
 **Optional parameters:** none     
-**Body:**  
+**Body:**      
 ```javascript
 {
     "Type" : "IP",
@@ -329,7 +328,7 @@ ___
     ]
 }
 ```
-**Return:**
+**Return:**    
 ```javascript
 {
   "Entities": [
@@ -347,12 +346,12 @@ ___
   "Relations": []
 }
 ```
-**Errors:**  
-* TODO
+**Errors:**      
+* TODO    
 ___
-**Path:** /updateEntity 
+**Path:** /updateEntity     
 **Type:** PUT     
-**Required Parameters:** none 
+**Required Parameters:** none     
 **Optional parameters:** none     
 **Body:**     
 ```javascript
@@ -367,21 +366,20 @@ ___
       "Children": null
     }
 ```
-**Return:** none  
-**Errors:**  
-* TODO
+**Return:** none      
+**Errors:**      
+* TODO    
 ___
-**Path:** /deleteEntity 
+**Path:** /deleteEntity     
 **Type:** DELETE     
-**Required Parameters:**
-* `GET` type string  
-* `GET` id int  
+**Required Parameters:**    
+* `GET` type string      
+* `GET` id int      
 
 **Optional parameters:** none     
-**Body:**  none  
-**Return:** none  
-**Errors:**  
-* 401 Insufficient permissions
-* 404 Unknown space id given 
+**Body:**  none      
+**Return:** none      
+**Errors:**      
+* TODO
 ___
 
