@@ -48,6 +48,9 @@ Example file:
 ## Usage
 After building and starting the database, you are free to use it. You can create your own code to use the API based on the HTTP API v1 docs below, or if your environment is PHP you can use the 'voodooEntity/slingshotdb-php-sdk'. As time goes by i plan to add more SDK's (golang, javascript, ....)
 
+## Future plans
+I got several plans on extending the functionality of the database, but i don't have a specific order for implementing those. I plan to release a full list of incoming features in a future release of SlingshotDB. So stay tuned .)
+
 
 ## HTTP API v1
 ---
