@@ -390,3 +390,166 @@ ___
 * TODO
 ___
 
+**Path:** /getEntityTypes     
+**Type:** GET      
+**Required Parameters:** none      
+**Optional parameters:** none      
+**Body:**  none        
+**Return:**    
+```javascript
+[
+  "IP",
+  "Port",
+  "State"
+]
+```
+**Errors:**  
+* TODO
+___ 
+**Path:** /getRelation     
+**Type:** GET      
+**Required Parameters:**      
+* `GET` srcType string    
+* `GET` srcID int    
+* `GET` targetType string    
+* `GET` targetID int    
+
+**Optional parameters:** none      
+**Body:**  none        
+**Return:**    
+```javascript
+{
+  "Entities": [],
+  "Relations": [
+    {
+      "SourceType": "IP",
+      "SourceID": 1,
+      "TargetType": "Port",
+      "TargetID": 1,
+      "Context": "",
+      "Properties": null
+    }
+  ]
+}
+```
+**Errors:**  
+* TODO
+___
+**Path:** /createRelation     
+**Type:** POST     
+**Required Parameters:** none     
+**Optional parameters:** none     
+**Body:**      
+```javascript
+{
+	"SourceType" : "IP",
+	"SourceID" : 1,
+	"TargetType" : "State",
+	"TargetID" : 1,
+	"Context" : "created",
+	"Properties" : {
+		"created" : "property"
+	}
+}
+```
+**Return:** none     
+**Errors:**      
+* TODO    
+___
+**Path:** /updateRelation     
+**Type:** PUT     
+**Required Parameters:** none     
+**Optional parameters:** none     
+**Body:**     
+```javascript
+{
+	"SourceType" : "IP",
+	"SourceID" : 1,
+	"TargetType" : "Port",
+	"TargetID" : 1,
+	"Context" : "updated",
+	"Properties" : {
+		"new" : "property"
+	}
+}
+```
+**Return:** none      
+**Errors:**      
+* TODO    
+___
+**Path:** /deleteRelation     
+**Type:** DELETE      
+**Required Parameters:**      
+* `GET` srcType string    
+* `GET` srcID int    
+* `GET` targetType string    
+* `GET` targetID int    
+
+**Optional parameters:** none      
+**Body:**  none        
+**Return:** none    
+**Errors:**  
+* TODO
+___
+**Path:** /getRelationsTo     
+**Type:** GET      
+**Required Parameters:**      
+* `GET` type string    
+* `GET` id int    
+
+**Optional parameters:** none      
+**Body:**  none        
+**Return:**    
+```javascript
+{
+  "Entities": [],
+  "Relations": [
+    {
+      "SourceType": "IP",
+      "SourceID": 1,
+      "TargetType": "Port",
+      "TargetID": 2,
+      "Context": "",
+      "Properties": null
+    }
+  ]
+}
+```
+**Errors:**  
+* TODO
+___
+**Path:** /getRelationsFrom     
+**Type:** GET      
+**Required Parameters:**      
+* `GET` type string    
+* `GET` id int    
+
+**Optional parameters:** none      
+**Body:**  none        
+**Return:**    
+```javascript
+{
+  "Entities": [],
+  "Relations": [
+    {
+      "SourceType": "IP",
+      "SourceID": 1,
+      "TargetType": "Port",
+      "TargetID": 1,
+      "Context": "",
+      "Properties": null
+    },
+    {
+      "SourceType": "IP",
+      "SourceID": 1,
+      "TargetType": "Port",
+      "TargetID": 2,
+      "Context": "",
+      "Properties": null
+    }
+  ]
+}
+```
+**Errors:**  
+* TODO
+___
