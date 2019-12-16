@@ -1,28 +1,51 @@
 # SlingshotDB 
-< some nice text>
+Welcome to the home of SlingshotDB - an in-memory entity/relation database. It's completly written in golang (vanilla, no 3rd party libraries used) and provides acces via an HTTP API. 
 
+While the database is based on in-memory operations, it offers the option to have asynchronous persistency. This will have a rather small impact to the write/update/delete actions. If you enable persistance, the database will import all persistance datasets on startup.
+
+In it's current state the database is shipped with minimal functionality. I will extend the functionality over time based on needs and time. 
+
+The main target of the database is to have an easy to use high performance storage.
+
+`Important!` Since the database is in memory and focused on high performance it uses a lot of memory for indexes and data storage. Using the database you should make sure to run it on a machine that provides a lot of memory to work fine. While there are several ways how i could reducde the memory usage i accepted this trade off for the performance.
+
+The database itself does not ship with a user/permission management (like elastic). This decision was made because i think your security should not rely on all your softwares implementation of such, instead you should use things like 'api-gateways' or smiliar to achieve the security management you want/need.
+
+Since this is an early alpha you should expect to encounter bugs that i didn't takle yet. Please feel free to report those as issues, and i will do my best to fix/solve them asap.
+
+If you have suggestions on how to change the database, you can also feel free to push them as issue, but keep in mind that i coded this database for specific purposes. So even if your suggestions may seem legit, they still could be refused if they oppose the way this database is meant to work.
+
+Finally i wanne leave a special thanks to some friends that helped through the process of creating this software by listening to hours of rage/ideas and providing suggestions that lead the way to the software you are about to use. 
+* Maze (the name 'Slingshot' was his idea)
+* Luxer 
+* f0o
+
+I hope you will enjoy the usage of SlingshotDB and that this will just be the start of a great project.
+
+Sincerely yours,
+voodooEntity
+
+---
+## Build
+SlingshotDB needs golang to be build. Just add the directory path you cloned the database into to your gopath and fire 'go build -o slingshot' inside. No special build flags or installing of dependencies needed. After building, just start the database with "./slingshot". 
+
+
+## Config
+The configuration is shipped with the repo in 'config.json' file. In the current state you got three options to configure.
+* `host` string  (by setting the host you limit the database to listen to a specific ip. by leaving it empty string it will listen to all IPs )
+* `port` int  (the port the database will listen on)
+* `persistance` bool (if set on true it will persist your datasets on your harddisk)
+
+Example file:
+```javascript
+{
+    "host" : "",
+    "port" : 8090,
+    "persistance" : false
+}
+```
 
 ## HTTP API v1
-**Index**
-* /v1
-  * [/getEntityByTypeAndId](#route-v1space)
-  * [/getEntitiesByTypeAndValue](#route-v1dashboard)
-  * [/getEntitiesByType](#route-v1visualisation)
-  * [/getEntitiesByValue]()
-  * [/getParentEntities]()
-  * [/getChildEntities]()
-  * [/createEntity]()
-  * [/mapJson]()
-  * [/updateEntity]()
-  * [/deleteEntity]()
-  * [/getEntityTypes]()
-  * [/getRelation]()
-  * [/createRelation]()
-  * [/updateRelation]()
-  * [/deleteRelation]()
-  * [/getRelationsTo]()
-  * [/getRelationsFrom]()
-
 ---
 ### Route: /v1
 
