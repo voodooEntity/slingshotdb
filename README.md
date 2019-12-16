@@ -26,7 +26,7 @@
 ---
 ### Route: /v1
 
-**Path:** /getEntityByTypeAndId
+**Path:** /getEntityByTypeAndId 
 **Type:** GET  
 **Required Parameters:** 
 * `GET` id int
@@ -94,7 +94,7 @@
 **Errors:** 
 * TODO
 ___ 
-**Path:** /getEntitiesByTypeAndValue
+**Path:** /getEntitiesByTypeAndValue 
 **Type:** GET  
 **Required Parameters:**  
 * `GET` value string
@@ -122,7 +122,7 @@ ___
 **Errors:**  
 * TODO
 ___
-**Path:** /getEntitiesByType
+**Path:** /getEntitiesByType 
 **Type:** GET  
 **Required Parameters:**  
 * `GET` type string
@@ -176,7 +176,7 @@ ___
 **Errors:**  
 * TODO
 ___
-**Path:** /getParentEntities
+**Path:** /getParentEntities 
 **Type:** GET  
 **Required Parameters:**  
 * `GET` type string
@@ -204,7 +204,7 @@ ___
 **Errors:**  
 * TODO
 ___
-**Path:** /getChildEntities
+**Path:** /getChildEntities 
 **Type:** GET  
 **Required Parameters:**  
 * `GET` type string
@@ -242,7 +242,7 @@ ___
 **Errors:**  
 * TODO
 ___
-**Path:** /createEntity
+**Path:** /createEntity 
 **Type:** POST     
 **Required Parameters:** none     
 **Optional parameters:** none     
@@ -257,7 +257,7 @@ ___
 	"Context" : "manifesto"
 }
 ```
-**Return:**
+**Return:** 
 ```javascript
 {
   "Entities": [
@@ -278,7 +278,7 @@ ___
 **Errors:**  
 * TODO
 ___
-**Path:** /mapJson
+**Path:** /mapJson 
 **Type:** POST     
 **Required Parameters:** none     
 **Optional parameters:** none     
@@ -350,9 +350,9 @@ ___
 **Errors:**  
 * TODO
 ___
-**Path:** /updateEntity
+**Path:** /updateEntity 
 **Type:** PUT     
-**Required Parameters:** none
+**Required Parameters:** none 
 **Optional parameters:** none     
 **Body:**     
 ```javascript
@@ -371,7 +371,7 @@ ___
 **Errors:**  
 * TODO
 ___
-**Path:** /deleteEntity
+**Path:** /deleteEntity 
 **Type:** DELETE     
 **Required Parameters:**
 * `GET` type string  
