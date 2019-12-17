@@ -26,8 +26,28 @@ Sincerely yours,
 voodooEntity
 
 ---
-## Build
-SlingshotDB needs golang to be build. Just add the directory path you cloned the database into to your gopath and fire 'go build -o slingshot' inside. No special build flags or installing of dependencies needed. After building, just start the database with "./slingshot". 
+## Build from source
+SlingshotDB needs golang to be build. Just add the directory path you cloned the database into to your gopath and fire 'go build -o slingshot' inside. No special build flags or installing of dependencies needed. After building, just start the database with "./slingshot".    
+
+
+## Run as docker
+SlingshotDB is shipped with a Dockerfile. This will compile the current cloned version and can be run. Using this you can easily update the git repo und just rebuild the docker iamge to keep your software up to date An example of how you could do it:    
+
+```bash
+# first we build the docker image tagged as slingshot db
+$ docker build . -t slingshotdb
+
+# than we gonne run the docker image as container exposing port 8090
+$ docker run -p 8090:8090 slingshotdb
+
+# you can modify the port the database will use in your host by changing
+# the first number after the -p param - if you want to run it on port 1234
+# it would look like following 
+$ docker run -p 1234:8090 slingshotdb
+
+# for further options check the docker doku
+# https://docs.docker.com/engine/reference/commandline/run/
+```
 
 
 ## Config
