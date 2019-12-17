@@ -307,7 +307,7 @@ ___
 {
 	"Type" : "Person",
 	"Properties" : {
-		"the" : "menthor"
+		"the" : "mentor"
 	},
 	"Value" : "This is it… this is where I belong…",
 	"Context" : "manifesto"
