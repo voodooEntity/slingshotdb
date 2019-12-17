@@ -93,7 +93,7 @@ I got several plans on extending the functionality of the database, but i don't 
     {
       "ID": 1,
       "Type": "IP",
-      "Context": "Pentest",
+      "Context": "Example",
       "Value": "127.0.0.1",
       "Properties": {
         "created_at": "sometimestamp"
@@ -102,7 +102,7 @@ I got several plans on extending the functionality of the database, but i don't 
         {
           "ID": 1,
           "Type": "Port",
-          "Context": "Pentest",
+          "Context": "Example",
           "Value": "80",
           "Properties": {
             "created_at": "sometimestamp"
@@ -112,7 +112,7 @@ I got several plans on extending the functionality of the database, but i don't 
         {
           "ID": 2,
           "Type": "Port",
-          "Context": "Pentest",
+          "Context": "Example",
           "Value": "443",
           "Properties": {
             "created_at": "sometimestamp"
@@ -160,7 +160,7 @@ ___
     {
       "ID": 1,
       "Type": "IP",
-      "Context": "Pentest",
+      "Context": "Example",
       "Value": "127.0.0.1",
       "Properties": {
         "created_at": "sometimestamp"
@@ -188,7 +188,7 @@ ___
     {
       "ID": 1,
       "Type": "IP",
-      "Context": "Pentest",
+      "Context": "Example",
       "Value": "127.0.0.1",
       "Properties": {
         "created_at": "sometimestamp"
@@ -216,7 +216,7 @@ ___
     {
       "ID": 1,
       "Type": "IP",
-      "Context": "Pentest",
+      "Context": "Example",
       "Value": "127.0.0.1",
       "Properties": {
         "created_at": "sometimestamp"
@@ -245,7 +245,7 @@ ___
     {
       "ID": 1,
       "Type": "IP",
-      "Context": "Pentest",
+      "Context": "Example",
       "Value": "127.0.0.1",
       "Properties": {
         "created_at": "sometimestamp"
@@ -284,7 +284,7 @@ ___
     {
       "ID": 2,
       "Type": "Port",
-      "Context": "Pentest",
+      "Context": "Example",
       "Value": "443",
       "Properties": {
         "created_at": "sometimestamp"
@@ -346,12 +346,12 @@ ___
     "Properties" : {
         "created_at" : "sometimestamp"
     },
-    "Context" : "Pentest",
+    "Context" : "Example",
     "Children" : [
         {
             "Type" : "Port",
             "Value" : "80",
-            "Context" : "Pentest",
+            "Context" : "Example",
             "Properties" : {
                 "created_at" : "sometimestamp"
             },
@@ -368,7 +368,7 @@ ___
         {
             "Type" : "Port",
             "Value" : "443",
-            "Context" : "Pentest",
+            "Context" : "Example",
             "Properties" : {
                 "created_at" : "sometimestamp"
             },
@@ -392,7 +392,7 @@ ___
     {
       "ID": 1,
       "Type": "IP",
-      "Context": "Pentest",
+      "Context": "Example",
       "Value": "127.0.0.1",
       "Properties": {
         "created_at": "sometimestamp"
