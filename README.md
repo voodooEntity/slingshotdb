@@ -43,6 +43,11 @@ $ docker run -p 8090:8090 slingshotdb
 # it would look like following 
 $ docker run -p 1234:8090 slingshotdb
 
+# to enable persistance in the host directory use the following
+# example wich mounts the current directory into the docker to
+# enable the database write into the host storage directory
+$ docker run -p 8090:8090 --mount type=bind,source="$(pwd)"/,target=/go/src/app slingshotdb
+
 # for further options check the docker doku
 # https://docs.docker.com/engine/reference/commandline/run/
 ```
