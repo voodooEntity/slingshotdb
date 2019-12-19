@@ -34,6 +34,7 @@ func GetEntityByTypeAndId(entityType string, id int) (types.MapperTransport, err
 			Properties: entity.Properties,
 			Context:    entity.Context,
 			Value:      entity.Value,
+			Version:    entity.Version,
 			Children:   []types.MapperEntity{},
 		},
 	}
@@ -63,6 +64,7 @@ func GetEntitiesRecursive(entityType int, entityID int, depth int, relations *[]
 		Value:      entity.Value,
 		Context:    entity.Context,
 		Properties: entity.Properties,
+		Version:    entity.Version,
 	}
 
 	// if we didnt reach the destinated depth yet
@@ -87,6 +89,7 @@ func GetEntitiesRecursive(entityType int, entityID int, depth int, relations *[]
 					TargetType: *targetType,
 					Properties: tmpRelation.Properties,
 					Context:    tmpRelation.Context,
+					Version:    tmpRelation.Version,
 				}
 				*relations = append(*relations, transRelation)
 
@@ -119,7 +122,7 @@ func DeleteEntity(Type string, id int) error {
 	return nil
 }
 
-func UpdateEntity(entityType string, entityID int, value string, properties map[string]string, context string) error {
+func UpdateEntity(entityType string, entityID int, value string, properties map[string]string, context string, Version int) error {
 	// first we create the entity type or retrieve the id (smart function is smart)
 	entityTypeID, _ := storage.CreateEntityType(entityType)
 
@@ -130,6 +133,7 @@ func UpdateEntity(entityType string, entityID int, value string, properties map[
 		Value:      value,
 		Properties: properties,
 		Context:    context,
+		Version:    Version,
 	}
 	// now we pass the new entity object to
 	// the storage
@@ -165,6 +169,7 @@ func CreateEntity(entityType string, value string, properties map[string]string,
 			Properties: properties,
 			Context:    context,
 			Value:      value,
+			Version:    1,
 			Children:   []types.MapperEntity{},
 		},
 	}
@@ -196,9 +201,10 @@ func GetEntitiesByType(entityType string) (types.MapperTransport, error) {
 				ID:         entities[id].ID,
 				Value:      entities[id].Value,
 				Type:       entityType,
-				Properties: entities[id].Properties,
 				Context:    entities[id].Context,
+				Properties: entities[id].Properties,
 				Children:   []types.MapperEntity{},
+				Version:    entities[id].Version,
 			})
 		}
 	}
@@ -231,6 +237,7 @@ func GetEntitiesByTypeAndValue(entityType string, entityValue string) (types.Map
 					Type:       entityType,
 					Properties: entities[id].Properties,
 					Context:    entities[id].Context,
+					Version:    entities[id].Version,
 					Children:   []types.MapperEntity{},
 				})
 			}
@@ -270,6 +277,7 @@ func MapJson(data []byte) (types.MapperTransport, error) {
 		Value:      entity.Value,
 		Properties: entity.Properties,
 		Context:    entity.Context,
+		Version:    1,
 		Children:   []types.MapperEntity{},
 	})
 
@@ -290,6 +298,7 @@ func MapEntitiesRecursive(entity types.MapperEntity, parentType int, parentID in
 		Type:       TypeID,
 		Value:      entity.Value,
 		Context:    entity.Context,
+		Version:    1,
 		Properties: entity.Properties,
 	}
 	// now we create the entity
@@ -314,6 +323,7 @@ func MapEntitiesRecursive(entity types.MapperEntity, parentType int, parentID in
 			SourceID:   parentID,
 			TargetType: tmpEntity.Type,
 			TargetID:   newID,
+			Version:    1,
 		}
 		storage.CreateRelation(parentType, parentID, tmpEntity.Type, newID, tmpRelation)
 	}
@@ -367,6 +377,7 @@ func GetChildEntities(strType string, id int) (types.MapperTransport, error) {
 			Value:      entity.Value,
 			Properties: entity.Properties,
 			Context:    entity.Context,
+			Version:    entity.Version,
 			Children:   []types.MapperEntity{},
 		}
 		transport.Entities = append(transport.Entities, tmpEntity)
@@ -423,6 +434,7 @@ func GetParentEntities(strType string, id int) (types.MapperTransport, error) {
 			Value:      entity.Value,
 			Properties: entity.Properties,
 			Context:    entity.Context,
+			Version:    entity.Version,
 			Children:   []types.MapperEntity{},
 		}
 		transport.Entities = append(transport.Entities, tmpEntity)
@@ -458,6 +470,7 @@ func GetRelation(srcType string, srcID int, targetType string, targetID int) (ty
 		TargetID:   relation.TargetID,
 		Context:    relation.Context,
 		Properties: relation.Properties,
+		Version:    relation.Version,
 	}
 
 	// add relation to transport and return
@@ -476,6 +489,7 @@ func UpdateRelation(srcType string, srcID int, targetType string, targetID int, 
 		TargetID:   targetID,
 		Properties: relation.Properties,
 		Context:    relation.Context,
+		Version:    relation.Version,
 	}
 
 	// update the relation
@@ -578,6 +592,7 @@ func GetRelationsTo(strType string, id int) (types.MapperTransport, error) {
 			TargetID:   relation.TargetID,
 			Context:    relation.Context,
 			Properties: relation.Properties,
+			Version:    relation.Version,
 		}
 		transport.Relations = append(transport.Relations, tmpRelation)
 	}
@@ -626,6 +641,7 @@ func GetRelationsFrom(strType string, id int) (types.MapperTransport, error) {
 			TargetID:   relation.TargetID,
 			Context:    relation.Context,
 			Properties: relation.Properties,
+			Version:    relation.Version,
 		}
 		transport.Relations = append(transport.Relations, tmpRelation)
 	}
@@ -659,6 +675,7 @@ func GetEntitiesByValue(value string) (types.MapperTransport, error) {
 				Value:      entity.Value,
 				Context:    entity.Context,
 				Properties: entity.Properties,
+				Version:    entity.Version,
 				Children:   []types.MapperEntity{},
 			}
 			transport.Entities = append(transport.Entities, tmpEntity)

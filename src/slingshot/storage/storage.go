@@ -168,6 +168,8 @@ func CreateEntity(entity types.StorageEntity) (int, error) {
 	//EntityIDMaxMasterMutex.Lock()
 	// and tell the entity its own id
 	entity.ID = newID
+	// and set the version to 1
+	entity.Version = 1
 	// - - - - - - - - - - - - - - - - -
 	// persistance handling
 	if true == persistance.PersistanceFlag {
@@ -207,7 +209,7 @@ func GetEntityByPath(Type int, id int) (types.StorageEntity, error) {
 		// and nil for error
 		//printMutexActions("GetEntityByPath.EntityStorageMutex.Unlock");
 		EntityStorageMutex.Unlock()
-		return entity, nil
+		return deepCopyEntity(entity), nil
 	}
 	//printMutexActions("GetEntityByPath.EntityStorageMutex.Unlock");
 	EntityStorageMutex.Unlock()
@@ -219,12 +221,19 @@ func GetEntityByPath(Type int, id int) (types.StorageEntity, error) {
 func GetEntitiesByType(Type string) (map[int]types.StorageEntity, error) {
 	// retrieve the fitting id
 	entityTypeID, _ := GetTypeIdByString(Type)
+
 	// lock retrieve und unlock the storage
+	mapRet := make(map[int]types.StorageEntity)
+	i := 0
 	EntityStorageMutex.RLock()
-	entities := EntityStorage[entityTypeID]
+	for _, entity := range EntityStorage[entityTypeID] {
+		mapRet[i] = deepCopyEntity(entity)
+		i++
+	}
 	EntityStorageMutex.RUnlock()
+
 	// return the entity map
-	return entities, nil
+	return mapRet, nil
 }
 
 func GetEntitiesByValue(value string) map[int]types.StorageEntity {
@@ -241,7 +250,7 @@ func GetEntitiesByValue(value string) map[int]types.StorageEntity {
 			if 0 < len(EntityStorage[typeID]) {
 				for _, entity := range EntityStorage[typeID] {
 					if entity.Value == value {
-						entities[i] = entity
+						entities[i] = deepCopyEntity(entity)
 						i++
 					}
 				}
@@ -255,8 +264,18 @@ func GetEntitiesByValue(value string) map[int]types.StorageEntity {
 }
 
 func UpdateEntity(entity types.StorageEntity) error {
+	// - - - - - - - - - - - - - - - - -
+	// lock the storage for concurrency
 	EntityStorageMutex.Lock()
-	if _, ok := EntityStorage[entity.Type][entity.ID]; ok {
+	if check, ok := EntityStorage[entity.Type][entity.ID]; ok {
+		// - - - - - - - - - - - - - - - - -
+		// lets check if the version is up to date
+		if entity.Version != check.Version {
+			EntityStorageMutex.Unlock()
+			return errors.New("Mismatch of version.")
+		}
+		entity.Version++
+
 		// - - - - - - - - - - - - - - - - -
 		// persistance handling
 		if true == persistance.PersistanceFlag {
@@ -271,6 +290,8 @@ func UpdateEntity(entity types.StorageEntity) error {
 		EntityStorageMutex.Unlock()
 		return nil
 	}
+
+	// unlock the storage and return an error in case we get here
 	EntityStorageMutex.Unlock()
 	return errors.New("Cant update non existing entity")
 }
@@ -309,7 +330,7 @@ func GetRelation(srcType int, srcID int, targetType int, targetID int) (types.St
 			if _, thirdOk := RelationStorage[srcType][srcID][targetType]; thirdOk {
 				if relation, fourthOk := RelationStorage[srcType][srcID][targetType][targetID]; fourthOk {
 					RelationStorageMutex.RUnlock()
-					return relation, nil
+					return deepCopyRelation(relation), nil
 				}
 			}
 		}
@@ -426,6 +447,8 @@ func CreateRelation(srcType int, srcID int, targetType int, targetID int, relati
 	if _, ok := RelationRStorage[targetType][targetID][srcType]; !ok {
 		RelationRStorage[targetType][targetID][srcType] = make(map[int]bool)
 	}
+	// set version to 1
+	relation.Version = 1
 	// now we store the relation
 	RelationStorage[srcType][srcID][targetType][targetID] = relation
 	// - - - - - - - - - - - - - - - - -
@@ -453,16 +476,18 @@ func CreateRelation(srcType int, srcID int, targetType int, targetID int, relati
 
 func UpdateRelation(srcType int, srcID int, targetType int, targetID int, relation types.StorageRelation) (types.StorageRelation, error) {
 	// first we lock the relation storage
-	RelationStorageMutex.RLock()
+	RelationStorageMutex.Lock()
 	if _, firstOk := RelationStorage[srcType]; firstOk {
 		if _, secondOk := RelationStorage[srcType][srcID]; secondOk {
 			if _, thirdOk := RelationStorage[srcType][srcID][targetType]; thirdOk {
 				if rel, fourthOk := RelationStorage[srcType][srcID][targetType][targetID]; fourthOk {
-					RelationStorageMutex.RUnlock()
-					RelationStorageMutex.Lock()
-					rel.Context = relation.Context
-					rel.Properties = relation.Properties
-					RelationStorage[srcType][srcID][targetType][targetID] = rel
+					// check if the version is fine
+					if rel.Version != relation.Version {
+						RelationStorageMutex.Unlock()
+						return types.StorageRelation{}, errors.New("Mismatch of version.")
+					}
+					rel.Version++
+
 					// - - - - - - - - - - - - - - - - -
 					// persistance handling
 					if true == persistance.PersistanceFlag {
@@ -473,13 +498,18 @@ func UpdateRelation(srcType int, srcID int, targetType int, targetID int, relati
 						}
 					}
 					// - - - - - - - - - - - - - - - - -
+
+					// update the data itself
+					rel.Context = relation.Context
+					rel.Properties = relation.Properties
+					RelationStorage[srcType][srcID][targetType][targetID] = rel
 					RelationStorageMutex.Unlock()
 					return relation, nil
 				}
 			}
 		}
 	}
-	RelationStorageMutex.RUnlock()
+	RelationStorageMutex.Unlock()
 	return types.StorageRelation{}, errors.New("Cant update non existing relation")
 }
 
@@ -505,7 +535,7 @@ func GetChildRelationsBySourceTypeAndSourceId(Type int, id int) (map[int]types.S
 		for _, relation := range targetTypeMap {
 			// copy the relation into the return map
 			// and upcount the int
-			mapRet[cnt] = relation
+			mapRet[cnt] = deepCopyRelation(relation)
 			cnt++
 		}
 	}
@@ -538,7 +568,7 @@ func GetParentRelationsByTargetTypeAndTargetId(targetType int, targetID int) (ma
 			// copy the relation into the return map
 			// and upcount the int
 			RelationStorageMutex.RLock()
-			mapRet[cnt] = RelationStorage[sourceTypeID][sourceRelationID][targetType][targetID]
+			mapRet[cnt] = deepCopyRelation(RelationStorage[sourceTypeID][sourceRelationID][targetType][targetID])
 			RelationStorageMutex.RUnlock()
 			cnt++
 		}
@@ -760,4 +790,51 @@ func importRelation(payload types.PersistancePayload) {
 	//and finally unlock the relation Type and return
 	//printMutexActions("CreateRelation.RelationStorageMutex.Unlock");
 	RelationStorageMutex.Unlock()
+}
+
+func deepCopyEntity(entity types.StorageEntity) types.StorageEntity {
+	// first we copy the base values
+	newEntity := types.StorageEntity{
+		Type:    entity.Type,
+		ID:      entity.ID,
+		Value:   entity.Value,
+		Context: entity.Context,
+		Version: entity.Version,
+	}
+
+	// creat the base map ##todo check later if we can spare this out
+	newEntity.Properties = make(map[string]string)
+
+	// now we check for the properties map
+	if nil != entity.Properties && 0 < len(entity.Properties) {
+		for key, value := range entity.Properties {
+			newEntity.Properties[key] = value
+		}
+	}
+
+	return newEntity
+}
+
+func deepCopyRelation(relation types.StorageRelation) types.StorageRelation {
+	// first we copy the base values
+	newRelation := types.StorageRelation{
+		SourceType: relation.SourceType,
+		SourceID:   relation.SourceID,
+		TargetType: relation.TargetType,
+		TargetID:   relation.TargetID,
+		Context:    relation.Context,
+		Version:    relation.Version,
+	}
+
+	// creat the base map ##todo check later if we can spare this out
+	newRelation.Properties = make(map[string]string)
+
+	// now we check for the properties map
+	if nil != relation.Properties && 0 < len(relation.Properties) {
+		for key, value := range relation.Properties {
+			newRelation.Properties[key] = value
+		}
+	}
+
+	return newRelation
 }
