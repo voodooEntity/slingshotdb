@@ -102,7 +102,7 @@ In this case House is the most parental entity. It has two child entities, repre
 
 While the data inside SlingshotDB can be mapped in a network like way, the input and output format are flattened onto a tree like format. This allows you to minimize the amount of data stored in the database, while still beeing able to retrieve an easy to parse and use format.
 
-In the current state SlingshotDB can used via the [HTTP API](https://github.com/voodooEntity/slingshotdb/blob/master/docs/HTTP_API_V1.md). 
+In the current state SlingshotDB can be used via the [HTTP API](https://github.com/voodooEntity/slingshotdb/blob/master/docs/HTTP_API_V1.md). 
 
 While the database is based on in-memory operations, it offers the option to have asynchronous persistency. This will have a rather small impact to the write/update/delete actions. If you enable persistance, the database will import all persistance datasets on startup.
 
