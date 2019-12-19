@@ -17,6 +17,7 @@ type StorageEntity struct {
 	Context    string
 	Value      string
 	Properties map[string]string
+	Version    int
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -28,6 +29,7 @@ type StorageRelation struct {
 	TargetID   int
 	Context    string
 	Properties map[string]string
+	Version    int
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -43,6 +45,7 @@ type MapperEntity struct {
 	Value      string
 	Properties map[string]string
 	Children   []MapperEntity
+	Version    int
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -54,6 +57,7 @@ type MapperRelation struct {
 	TargetID   int
 	Context    string
 	Properties map[string]string
+	Version    int
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - -

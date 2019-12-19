@@ -218,7 +218,7 @@ func Start() {
 		// that will recursive map the entities
 		responseData, err := mapper.MapJson(body)
 		if nil != err {
-			http.Error(w, err.Error(), 403)
+			http.Error(w, err.Error(), 422)
 			return
 		}
 
@@ -289,7 +289,7 @@ func Start() {
 		}
 
 		// finally we update the entity
-		err = mapper.UpdateEntity(newEntity.Type, newEntity.ID, newEntity.Value, newEntity.Properties, newEntity.Context)
+		err = mapper.UpdateEntity(newEntity.Type, newEntity.ID, newEntity.Value, newEntity.Properties, newEntity.Context, newEntity.Version)
 		if nil != err {
 			http.Error(w, err.Error(), 422)
 			return
