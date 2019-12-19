@@ -187,8 +187,20 @@ func Start() {
 			return
 		}
 
+		// now we get optional params
+		optionalUrlParams := make(map[string]string)
+		optionalUrlParams["mode"] = ""
+		urlParams = getOptionalUrlParams(optionalUrlParams, urlParams, r)
+
+		// lets make a default for mode and
+		// overwrite if given
+		mode := "match"
+		if _, ok := urlParams["mode"]; urlParams["mode"] != "" && ok {
+			mode = urlParams["mode"]
+		}
+
 		// ok we seem to be fine on types, lets call the actual getter method
-		responseData, err := mapper.GetEntitiesByTypeAndValue(urlParams["type"], urlParams["value"])
+		responseData, err := mapper.GetEntitiesByTypeAndValue(urlParams["type"], urlParams["value"], mode)
 		if nil != err {
 			http.Error(w, err.Error(), 422)
 			return
@@ -523,8 +535,20 @@ func Start() {
 			return
 		}
 
+		// now we get optional params
+		optionalUrlParams := make(map[string]string)
+		optionalUrlParams["mode"] = ""
+		urlParams = getOptionalUrlParams(optionalUrlParams, urlParams, r)
+
+		// lets make a default for mode and
+		// overwrite if given
+		mode := "match"
+		if _, ok := urlParams["mode"]; urlParams["mode"] != "" && ok {
+			mode = urlParams["mode"]
+		}
+
 		// retrieve the entities
-		transport, err := mapper.GetEntitiesByValue(urlParams["value"])
+		transport, err := mapper.GetEntitiesByValue(urlParams["value"], mode)
 		if nil != err {
 			http.Error(w, err.Error(), 422)
 			return

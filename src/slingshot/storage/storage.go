@@ -3,9 +3,11 @@ package storage
 // handle all the imports
 import (
 	"errors"
+	"regexp"
 	"slingshot/config"
 	"slingshot/persistance"
 	"slingshot/types"
+	"strings"
 	"sync"
 )
 
@@ -236,20 +238,122 @@ func GetEntitiesByType(Type string) (map[int]types.StorageEntity, error) {
 	return mapRet, nil
 }
 
-func GetEntitiesByValue(value string) map[int]types.StorageEntity {
-	// lets prepare the return map
+func GetEntitiesByValue(value string, mode string) (map[int]types.StorageEntity, error) {
+	// lets prepare the return map, counter and regex r
 	entities := make(map[int]types.StorageEntity)
 	i := 0
+	var r *regexp.Regexp
+	var err error = nil
 
 	// first we lock the storage
 	EntityStorageMutex.RLock()
 
+	// if we got mode regex we prepare the regex
+	// by precompiling it to have faster lookups
+	if "regex" == mode {
+		r, err = regexp.Compile(value)
+
+		// check if regex could be compiled successfull,
+		// else return error
+		if nil != err {
+			return map[int]types.StorageEntity{}, err
+		}
+	}
+
 	// than we iterate through all entity storage to find a fitting value
 	if 0 < len(EntityStorage) {
-		for typeID, _ := range EntityStorage {
+		for typeID := range EntityStorage {
 			if 0 < len(EntityStorage[typeID]) {
 				for _, entity := range EntityStorage[typeID] {
+					switch mode {
+					case "match":
+						if entity.Value == value {
+							entities[i] = deepCopyEntity(entity)
+							i++
+						}
+					case "prefix":
+						if strings.HasPrefix(entity.Value, value) {
+							entities[i] = deepCopyEntity(entity)
+							i++
+						}
+					case "suffix":
+						if strings.HasSuffix(entity.Value, value) {
+							entities[i] = deepCopyEntity(entity)
+							i++
+						}
+					case "contain":
+						if strings.Contains(entity.Value, value) {
+							entities[i] = deepCopyEntity(entity)
+							i++
+						}
+					case "regex":
+						if r.MatchString(entity.Value) {
+							entities[i] = deepCopyEntity(entity)
+							i++
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// unlock storage again and return
+	EntityStorageMutex.RUnlock()
+	return entities, nil
+}
+
+func GetEntitiesByTypeAndValue(Type string, value string, mode string) (map[int]types.StorageEntity, error) {
+	// lets prepare the return map, counter and regex r
+	entities := make(map[int]types.StorageEntity)
+	i := 0
+	var r *regexp.Regexp
+	var err error = nil
+
+	// first we lock the storage
+	EntityStorageMutex.RLock()
+
+	// retrieve the fitting id
+	entityTypeID, _ := GetTypeIdByString(Type)
+
+	// if we got mode regex we prepare the regex
+	// by precompiling it to have faster lookups
+	if "regex" == mode {
+		r, err = regexp.Compile(value)
+
+		// check if regex could be compiled successfull,
+		// else return error
+		if nil != err {
+			return map[int]types.StorageEntity{}, err
+		}
+	}
+
+	// than we iterate through all entity storage to find a fitting value
+	if 0 < len(EntityStorage) {
+		if 0 < len(EntityStorage[entityTypeID]) {
+			for _, entity := range EntityStorage[entityTypeID] {
+				switch mode {
+				case "match":
 					if entity.Value == value {
+						entities[i] = deepCopyEntity(entity)
+						i++
+					}
+				case "prefix":
+					if strings.HasPrefix(entity.Value, value) {
+						entities[i] = deepCopyEntity(entity)
+						i++
+					}
+				case "suffix":
+					if strings.HasSuffix(entity.Value, value) {
+						entities[i] = deepCopyEntity(entity)
+						i++
+					}
+				case "contain":
+					if strings.Contains(entity.Value, value) {
+						entities[i] = deepCopyEntity(entity)
+						i++
+					}
+				case "regex":
+					if r.MatchString(entity.Value) {
 						entities[i] = deepCopyEntity(entity)
 						i++
 					}
@@ -260,7 +364,7 @@ func GetEntitiesByValue(value string) map[int]types.StorageEntity {
 
 	// unlock storage again and return
 	EntityStorageMutex.RUnlock()
-	return entities
+	return entities, nil
 }
 
 func UpdateEntity(entity types.StorageEntity) error {
@@ -497,8 +601,8 @@ func UpdateRelation(srcType int, srcID int, targetType int, targetID int, relati
 							Relation: rel,
 						}
 					}
-					// - - - - - - - - - - - - - - - - -
 
+					// - - - - - - - - - - - - - - - - -
 					// update the data itself
 					rel.Context = relation.Context
 					rel.Properties = relation.Properties

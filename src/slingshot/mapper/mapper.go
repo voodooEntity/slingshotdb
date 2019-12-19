@@ -217,7 +217,7 @@ func GetEntitiesByType(entityType string) (types.MapperTransport, error) {
 	return transport, nil
 }
 
-func GetEntitiesByTypeAndValue(entityType string, entityValue string) (types.MapperTransport, error) {
+func GetEntitiesByTypeAndValue(entityType string, entityValue string, mode string) (types.MapperTransport, error) {
 	// check if the entity type exists in first place
 	ok := storage.TypeExists(entityType)
 	if !ok {
@@ -225,22 +225,26 @@ func GetEntitiesByTypeAndValue(entityType string, entityValue string) (types.Map
 	}
 
 	// ok type exists lets retrieve all fitting entities for
-	// this type
-	entities, _ := storage.GetEntitiesByType(entityType)
+	// this type # todo move the compare to storage
+	entities, err := storage.GetEntitiesByTypeAndValue(entityType, entityValue, mode)
+
+	// check if there was an error
+	if nil != err {
+		return types.MapperTransport{}, err
+	}
+
 	var tmpArray []types.MapperEntity
 	if 0 < len(entities) {
 		for id := range entities {
-			if entities[id].Value == entityValue {
-				tmpArray = append(tmpArray, types.MapperEntity{
-					ID:         entities[id].ID,
-					Value:      entities[id].Value,
-					Type:       entityType,
-					Properties: entities[id].Properties,
-					Context:    entities[id].Context,
-					Version:    entities[id].Version,
-					Children:   []types.MapperEntity{},
-				})
-			}
+			tmpArray = append(tmpArray, types.MapperEntity{
+				ID:         entities[id].ID,
+				Value:      entities[id].Value,
+				Type:       entityType,
+				Properties: entities[id].Properties,
+				Context:    entities[id].Context,
+				Version:    entities[id].Version,
+				Children:   []types.MapperEntity{},
+			})
 		}
 	}
 	// build up the return
@@ -649,14 +653,19 @@ func GetRelationsFrom(strType string, id int) (types.MapperTransport, error) {
 	return transport, nil
 }
 
-func GetEntitiesByValue(value string) (types.MapperTransport, error) {
+func GetEntitiesByValue(value string, mode string) (types.MapperTransport, error) {
 	// first we make sure we dont search for empty
 	if "" == value {
 		return types.MapperTransport{}, errors.New("Dont search for empty value ~.~")
 	}
 
 	// ok seems fine lets search for entties by value
-	entities := storage.GetEntitiesByValue(value)
+	entities, err := storage.GetEntitiesByValue(value, mode)
+
+	// check if we got an error
+	if err != nil {
+		return types.MapperTransport{}, err
+	}
 
 	// prepare return
 	transport := types.MapperTransport{

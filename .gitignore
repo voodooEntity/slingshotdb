@@ -1,2 +1,4 @@
 pkg/*
 bin/*
+storage/entities/*
+storage/relations/*
