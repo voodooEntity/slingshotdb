@@ -2,6 +2,12 @@
 ## Release v0.1.2-alpha `21.12.2019`    
 * Update of README.md, [About Slingshot](https://github.com/voodooEntity/slingshotdb/blob/master/docs/ABOUT_SLINGSHOT.md) and [HTTP API](https://github.com/voodooEntity/slingshotdb/blob/master/docs/HTTP_API_V1.md)
 * Adding Version field to Entitiy and Relation datasets to tackle multithread client update race condition problems
+* Adding optional param `mode` string to `getEntitiesByValue` and `getEntitiesByTypeAndValue` to decide wich compare mode should be used. Available now are
+    * `match` (exact match, default mode)
+    * `prefix` (value must begin with)
+    * `suffix` (value must end with)
+    * `contain` (value must contain)
+    * `regex` (value must match regex pattern)
 * Adding optional param `context` string to `getEntitiesByType` and `getEntitiesByTypeAndValue` api methods as filter.
 * Some code comment cleaning in storage.go
 
