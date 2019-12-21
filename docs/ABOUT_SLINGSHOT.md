@@ -40,15 +40,16 @@ type Relation struct {
 * `TargetID` auto increment identifier of target entity
 * `Context` can be used for search in different methods (future)
 * `Properties` a dynamic list of key/value strings that can be used to store any kind of information (from timestamp to description) 
-* `Version` used to tackle race condition problems on multithread clients
+* `Version` used to tackle race condition problems on multithread clients    
 
-#### A simple example of data would be the Simpsons family tree:
-![Simpsons family tree](http://scriptjungle.de/slingshotdb/simpsons.png)
-While SlingshotDB allows you to create Network structures, due to the nature of JSON those will be flattened in the output. To retrieve a Network structure you need to read it step by step (in future there will be a network retrievel method). 
+While SlingshotDB allows you to create Network structures, due to the nature of JSON as transport format those will be flattened in the output if using the traverse option. To retrieve a Network structure you need to read it step by step (in future there will be a network retrievel method).    
+
+#### A simple example of data would be the Simpsons family tree:    
+![Simpsons family tree](http://scriptjungle.de/slingshotdb/simpsons.png)     
 
 ------
 
-An other of how your input could look like:
+An other of how your input could look like when mapping a tree structure:
 ```javascript
 {
     "Type": "House",
