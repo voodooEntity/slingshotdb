@@ -25,6 +25,7 @@
       "Properties": {
         "created_at": "sometimestamp"
       },
+      "Version" : 1,
       "Children": [
         {
           "ID": 1,
@@ -34,6 +35,7 @@
           "Properties": {
             "created_at": "sometimestamp"
           },
+          "Version" : 1,
           "Children": []
         },
         {
@@ -44,6 +46,7 @@
           "Properties": {
             "created_at": "sometimestamp"
           },
+          "Version" : 1,
           "Children": []
         }
       ]
@@ -56,6 +59,7 @@
       "TargetType": "Port",
       "TargetID": 1,
       "Context": "",
+      "Version" : 1,
       "Properties": null
     },
     {
@@ -64,6 +68,7 @@
       "TargetType": "Port",
       "TargetID": 2,
       "Context": "",
+      "Version" : 1,
       "Properties": null
     }
   ]
@@ -78,7 +83,16 @@ ___
 * `GET` value string    
 * `GET` type string    
 
-**Optional parameters:** none      
+**Optional parameters:**       
+*  `GET` mode string   (compare mode used with `GET` value string)
+    * `match` (exact match, default mode)
+    * `prefix` (value must begin with)
+    * `suffix` (value must end with)
+    * `contain` (value must contain)
+    * `regex` (value must match regex pattern)
+* `GET` context string (can be used as filter, requires exact match)    
+
+
 **Body:**  none        
 **Return:**    
 ```javascript
@@ -92,6 +106,7 @@ ___
       "Properties": {
         "created_at": "sometimestamp"
       },
+      "Version" : 1,
       "Children": []
     }
   ],
@@ -106,7 +121,15 @@ ___
 **Required Parameters:**      
 * `GET` type string    
 
-**Optional parameters:** none      
+**Optional parameters:**      
+*  `GET` mode string   (compare mode used with `GET` value string)
+    * `match` (exact match, default mode)
+    * `prefix` (value must begin with)
+    * `suffix` (value must end with)
+    * `contain` (value must contain)
+    * `regex` (value must match regex pattern)
+* `GET` context string (can be used as filter, requires exact match)    
+
 **Body:**  none        
 **Return:**    
 ```javascript
@@ -120,6 +143,7 @@ ___
       "Properties": {
         "created_at": "sometimestamp"
       },
+      "Version" : 1,
       "Children": []
     }
   ],
@@ -148,6 +172,7 @@ ___
       "Properties": {
         "created_at": "sometimestamp"
       },
+      "Version" : 1,
       "Children": []
     }
   ],
@@ -177,6 +202,7 @@ ___
       "Properties": {
         "created_at": "sometimestamp"
       },
+      "Version" : 1,
       "Children": []
     }
   ],
@@ -206,6 +232,7 @@ ___
       "Properties": {
         "created_at": "sometimestamp"
       },
+      "Version" : 1,
       "Children": []
     },
     {
@@ -216,6 +243,7 @@ ___
       "Properties": {
         "created_at": "sometimestamp"
       },
+      "Version" : 1,
       "Children": []
     }
   ],
@@ -252,6 +280,7 @@ ___
       "Properties": {
         "the": "menthor"
       },
+      "Version" : 1,
       "Children": []
     }
   ],
@@ -324,6 +353,7 @@ ___
       "Properties": {
         "created_at": "sometimestamp"
       },
+      "Version" : 1,
       "Children": []
     }
   ],
@@ -347,6 +377,7 @@ ___
       "Properties": {
         "created_not": "no timestamp"
       },
+      "Version" : 1,
       "Children": null
     }
 ```
@@ -404,6 +435,7 @@ ___
       "TargetType": "Port",
       "TargetID": 1,
       "Context": "",
+      "Version" : 1,
       "Properties": null
     }
   ]
@@ -445,6 +477,7 @@ ___
 	"TargetType" : "Port",
 	"TargetID" : 1,
 	"Context" : "updated",
+  "Version" : 1,
 	"Properties" : {
 		"new" : "property"
 	}
@@ -487,6 +520,7 @@ ___
       "TargetType": "Port",
       "TargetID": 2,
       "Context": "",
+      "Version" : 1,
       "Properties": null
     }
   ]
@@ -514,6 +548,7 @@ ___
       "TargetType": "Port",
       "TargetID": 1,
       "Context": "",
+      "Version" : 1,
       "Properties": null
     },
     {
@@ -522,6 +557,7 @@ ___
       "TargetType": "Port",
       "TargetID": 2,
       "Context": "",
+      "Version" : 1,
       "Properties": null
     }
   ]

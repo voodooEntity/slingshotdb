@@ -1,8 +1,8 @@
 # Changelog    
 ## Release v0.1.2-alpha `21.12.2019`    
-* Update of README.md, docs/ABOUT_SLINGSHOT.md and docs/HTTP_API_V1.md
+* Update of README.md, [About Slingshot](https://github.com/voodooEntity/slingshotdb/blob/master/docs/ABOUT_SLINGSHOT.md) and [HTTP API](https://github.com/voodooEntity/slingshotdb/blob/master/docs/HTTP_API_V1.md)
 * Adding Version field to Entitiy and Relation datasets to tackle multithread client update race condition problems
-* Adding optional param `context` string to `getEntitesByValue` and `getEntitiesByTypeAndValue` api methods as filter.
+* Adding optional param `context` string to `getEntitiesByType` and `getEntitiesByTypeAndValue` api methods as filter.
 * Some code comment cleaning in storage.go
 
 ## Release v0.1.1-alpha `19.12.2019`    
