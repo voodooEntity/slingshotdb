@@ -1,13 +1,54 @@
+
 # About SlingshotDB
 This document should provide a small introduction about how SlingshotDB works.
 
-Slingshot stores its data in two kinds of datasets, entities and relations. Entities represent data nodes wich have a certrain type (entity type) and a value. Relations are links between those data nodes. Relations have source and target entitys wich defines if the relation is a parent or child relation. 
+SlingshotDB is tool for storing graphs and traversing in them. In SlingshotDB Entities are taking the role of nodes and Relations the role of edges.
 
-Both types of data (entities and relations) can hold a dynamic list of properties (key/value pairs) and a context. Those can be used in multiple ways. From storing a timestamp over storing an order id to holding a list of specific properties or many more different options. 
+#### Entity Example    
+```go
+type Entity struct {
+	ID         int
+	Type       string
+	Value      string
+	Context    string
+	Properties map[string]string
+	Version    int
+}
+```
+* `Type` Entity type 
+* `ID` auto increment per Type
+* `Value` value for this Entity
+* `Context` can be used for search in different methods
+* `Properties` a dynamic list of key/value strings that can be used to store any kind of information (from timestamp to description) 
+* `Version` used to tackle race condition problems on multithread clients
 
-There is no `correct` way to utilize this - you should always model your storage fitting to your needs. 
+#### Relation Example
+```go
+type Relation struct {
+	SourceType string
+	SourceID   int
+	TargetType string
+	TargetID   int
+	Context    string
+	Properties map[string]string
+	Version    int
+}
+```
+* `SourceType` Entity type of source entity
+* `SourceID` auto increment identifier of source entity
+* `TargetType` Entity type of target entity
+* `TargetID` auto increment identifier of target entity
+* `Context` can be used for search in different methods (future)
+* `Properties` a dynamic list of key/value strings that can be used to store any kind of information (from timestamp to description) 
+* `Version` used to tackle race condition problems on multithread clients
 
-An example of how your datastructure could look like:
+#### A simple example of data would be the Simpsons family tree:
+![Simpsons family tree](http://scriptjungle.de/slingshotdb/simpsons.png)
+While SlingshotDB allows you to create Network structures, due to the nature of JSON those will be flattened in the output. To retrieve a Network structure you need to read it step by step (in future there will be a network retrievel method). 
+
+------
+
+An other of how your input could look like:
 ```javascript
 {
     "Type": "House",
@@ -98,13 +139,11 @@ An example of how your datastructure could look like:
 }
 
 ```
-In this case House is the most parental entity. It has two child entities, representing the houses floors. Those themself got multiple children, representing the rooms in that floor. The properties are used to hold some information about the datasets. Deciding if an information should be a property or a new child node itself should depend on your usage.
-
-While the data inside SlingshotDB can be mapped in a network like way, the input and output format are flattened onto a tree like format. This allows you to minimize the amount of data stored in the database, while still beeing able to retrieve an easy to parse and use format.
+In this case House is the most parental entity. It has two child entities, representing the houses floors. Those themself got multiple children, representing the rooms in that floor. The properties are used to hold some information about the datasets. Deciding if an information should be a property or a new child node itself should depend on your usage. When mapped in this structure the system will create relations from entities containing a children array to the entities inside the children array. 
 
 In the current state SlingshotDB can be used via the [HTTP API](https://github.com/voodooEntity/slingshotdb/blob/master/docs/HTTP_API_V1.md). 
 
-While the database is based on in-memory operations, it offers the option to have asynchronous persistency. This will have a rather small impact to the write/update/delete actions. If you enable persistance, the database will import all persistance datasets on startup.
+While the database is based on in-memory operations, it offers the option to have asynchronous persistency. This will have a rather small impact to the write/update/delete actions. If you enable persistance in config.php , the database will import all persistance datasets on every startup.
 
 The database itself does not ship with a user/permission management (like elastic). This decision was made because i think your security should not rely on all your softwares implementation of such, instead you should use things like 'api-gateways' or smiliar to achieve the security management you want/need.
 

@@ -1,5 +1,5 @@
 # SlingshotDB 
-Welcome to the home of SlingshotDB - an in-memory entity/relation database. It's completly written in golang (vanilla, no 3rd party libraries used) and provides acces via an [HTTP API](https://github.com/voodooEntity/slingshotdb/blob/master/docs/HTTP_API_V1.md). For further information about the structure/usage of this software please check [About Slingshot](https://github.com/voodooEntity/slingshotdb/blob/master/docs/ABOUT_SLINGSHOT.md)
+Welcome to the home of SlingshotDB - an in-memory graph database. It's completly written in golang (vanilla, no 3rd party libraries used) and provides acces via an [HTTP API](https://github.com/voodooEntity/slingshotdb/blob/master/docs/HTTP_API_V1.md). For further information about the structure/usage of this software please check [About Slingshot](https://github.com/voodooEntity/slingshotdb/blob/master/docs/ABOUT_SLINGSHOT.md)
 
 The main target of the database is to have a easy to use high performance storage. In it's current state the database is shipped with minimal functionality. I will extend the functionality over time based on needs and time. 
 
@@ -21,12 +21,18 @@ Please read the  [Code of Condut](https://github.com/voodooEntity/slingshotdb/bl
 
 Since this is an early alpha you should expect to encounter bugs that i didn't takle yet. Please feel free to report those as issues, and i will do my best to fix/solve them asap.     
 
-If you have suggestions on how to change the database, you can also feel free to push them as issue, but keep in mind that i coded this database for specific purposes. So even if your suggestions may seem legit, they still could be refused if they oppose the way this database is meant to work.       
+If you have suggestions on how to change the database, you can also feel free to message me, but keep in mind that i coded this database for specific purposes. So even if your suggestions may seem legit, they still could be refused if they oppose the way this database is meant to work.      
 
 
 ## Build from source
-SlingshotDB needs golang to be build. Just add the directory path you cloned the database into to your gopath and fire 'go build -o slingshot' inside. No special build flags or installing of dependencies needed. After building, just start the database with "./slingshot".    
-
+SlingshotDB needs golang to be build. Just add the directory path you cloned the database into to your gopath and fire 
+```bash
+go build -o slingshot
+```
+inside. No special build flags or installing of dependencies needed. After building, just start the database with 
+```bash
+./slingshot
+```
 
 ## Run as docker
 SlingshotDB is shipped with a Dockerfile. This will compile the current cloned version and can be run. Using this you can easily update the git repo und just rebuild the docker iamge to keep your software up to date An example of how you could do it:    
@@ -72,5 +78,13 @@ Example file:
 After building and starting the database, you are free to use it. You can create your own code to use the API based on the [HTTP API v1 docs](https://github.com/voodooEntity/slingshotdb/blob/master/docs/HTTP_API_V1.md), or if your environment is PHP you can use the 'voodooEntity/slingshotdb-php-sdk'. As time goes by i plan to add more SDK's (golang, javascript, ....)
 
 ## Future plans
-I got several plans on extending the functionality of the database, but i don't have a specific order for implementing those. I plan to release a full list of incoming features in a future release of SlingshotDB. So stay tuned .)
+* Adding Context filter param to all retrieval HTTP methods
+* Adding offest and length parameters to retrieval HTTP methods that potentially can return giant amounts of data
+* Adding optional filter params for properties
+* Adding a network retrievel function that will ship the data in single dataset lists. This enables the traversing through the data in a non flattened structure.
+* Extended Docs with more examples
+* `System` methods such as `getMemoryStats` , `shutdown` and more
+* Precompiled binaries for different systems
+* A simple tool to visualize the data (probably browser based)
+* ..... and much more =)
 

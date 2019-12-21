@@ -3,9 +3,11 @@ package storage
 // handle all the imports
 import (
 	"errors"
+	"regexp"
 	"slingshot/config"
 	"slingshot/persistance"
 	"slingshot/types"
+	"strings"
 	"sync"
 )
 
@@ -70,16 +72,16 @@ func Boot() {
 // Create an entity Type
 func CreateEntityType(name string) (int, error) {
 	// first of allw e lock
-	//printMutexActions("CreateEntityType.EntityTypeMutex.Lock");
 	EntityTypeMutex.Lock()
+
 	// lets check if the Type allready exists
 	// if it does we just return the ID
 	if id, ok := EntityRTypes[name]; ok {
 		// dont forget to unlock
-		//printMutexActions("CreateEntityType.EntityTypeMutex.Unlock");
 		EntityTypeMutex.Unlock()
 		return id, nil
 	}
+
 	// ok entity doesnt exist yet, lets
 	// upcount our ID Max and copy it
 	// into another variable so we can be sure
@@ -87,33 +89,34 @@ func CreateEntityType(name string) (int, error) {
 	// it doesnt get upcounted
 	EntityTypeIDMax++
 	var newID = EntityTypeIDMax
+
 	// finally create the new Type in our
 	// EntityTypes index and reverse index
 	EntityTypes[newID] = name
 	EntityRTypes[name] = newID
+
 	// and create mutex for EntityStorage Type+type
-	//printMutexActions("CreateEntityType.EntityStorageMutex.Lock");
 	EntityStorageMutex.Lock()
+
 	// now we prepare the submaps in the entity
 	// storage itseöf....
 	EntityStorage[newID] = make(map[int]types.StorageEntity)
+
 	// set the maxID for the new
 	// Type type
 	EntityIDMax[newID] = 0
-	//printMutexActions("CreateEntityType.EntityStorageMutex.Unlock");
 	EntityStorageMutex.Unlock()
+
 	// create the base maps in relation storage
-	//printMutexActions("CreateEntityType.RelationStorageMutex.Lock");
 	RelationStorageMutex.Lock()
 	RelationStorage[newID] = make(map[int]map[int]map[int]types.StorageRelation)
 	RelationRStorage[newID] = make(map[int]map[int]map[int]bool)
-	//printMutexActions("CreateEntityType.RelationStorageMutex.Unlock");
 	RelationStorageMutex.Unlock()
+
 	// and create the basic submaps for
 	// the relation storage
 	// now we unlock the mutex
 	// and return the new id
-	//printMutexActions("CreateEntityType.EntityTypeMutex.Unlock");
 	// - - - - - - - - - - - - - - - - -
 	// persistance handling
 	if true == persistance.PersistanceFlag {
@@ -134,13 +137,12 @@ func CreateEntity(entity types.StorageEntity) (int, error) {
 	// existence it doesnt get deletet, this
 	// may sound like a very rare upcoming case,
 	//but better be safe than sorry
-	//printMutexActions("CreateEntity.EntityTypeMutex.RLock");
 	EntityTypeMutex.RLock()
+
 	// now
 	if _, ok := EntityTypes[entity.Type]; !ok {
 		// the Type doest exist, lets unlock
 		// the Type mutex and return -1 for fail0r
-		//printMutexActions("CreateEntity.EntityTypeMutex.RUnlock");
 		EntityTypeMutex.RUnlock()
 		return -1, errors.New("CreateEntity.Entity Type not existing")
 	}
@@ -149,8 +151,8 @@ func CreateEntity(entity types.StorageEntity) (int, error) {
 	// Type mutex to prevent the Type beeing
 	// deleted before we start locking (small
 	// timing still possible )
-	//printMutexActions("CreateEntity.EntityTypeMutex.RUnlock");
 	EntityTypeMutex.RUnlock()
+
 	// upcount our ID Max and copy it
 	// into another variable so we can be sure
 	// between unlock of the ressource and return
@@ -158,18 +160,17 @@ func CreateEntity(entity types.StorageEntity) (int, error) {
 	// and set the IDMaxMutex on write Lock
 	// lets upcount the entity id max fitting to
 	//         [Type]
-	//printMutexActions("CreateEntity.EntityStorageMutex.Lock");
 	EntityStorageMutex.Lock()
-	//fmt.Println("CreateEntity.EntityIDMaxMasterMutex.Unlock");
-	//EntityIDMaxMasterMutex.Unlock()
 	EntityIDMax[entity.Type]++
 	var newID = EntityIDMax[entity.Type]
-	//fmt.Println("CreateEntity.EntityIDMaxMasterMutex.Lock");
+
 	//EntityIDMaxMasterMutex.Lock()
 	// and tell the entity its own id
 	entity.ID = newID
+
 	// and set the version to 1
 	entity.Version = 1
+
 	// - - - - - - - - - - - - - - - - -
 	// persistance handling
 	if true == persistance.PersistanceFlag {
@@ -180,20 +181,22 @@ func CreateEntity(entity types.StorageEntity) (int, error) {
 		}
 	}
 	// - - - - - - - - - - - - - - - - -
+
 	// now we store the entity element
 	// in the EntityStorage
 	EntityStorage[entity.Type][newID] = entity
+
 	//printMutexActions("CreateEntity.EntityStorageMutex.Unlock");
 	EntityStorageMutex.Unlock()
+
 	// create the mutex for our ressource on
 	// relation. we have to create the sub maps too
 	// golang things....
-	//printMutexActions("CreateEntity.RelationStorageMutex.Lock");
 	RelationStorageMutex.Lock()
 	RelationStorage[entity.Type][newID] = make(map[int]map[int]types.StorageRelation)
 	RelationRStorage[entity.Type][newID] = make(map[int]map[int]bool)
-	//printMutexActions("CreateEntity.RelationStorageMutex.Unlock");
 	RelationStorageMutex.Unlock()
+
 	// since we now stored the entity and created all
 	// needed ressources we can unlock
 	// the storage ressource and return the ID (or err)
@@ -202,23 +205,22 @@ func CreateEntity(entity types.StorageEntity) (int, error) {
 
 func GetEntityByPath(Type int, id int) (types.StorageEntity, error) {
 	// lets check if entity witrh the given path exists
-	//printMutexActions("GetEntityByPath.EntityStorageMutex.Lock");
 	EntityStorageMutex.Lock()
 	if entity, ok := EntityStorage[Type][id]; ok {
 		// if yes we return the entity
 		// and nil for error
-		//printMutexActions("GetEntityByPath.EntityStorageMutex.Unlock");
 		EntityStorageMutex.Unlock()
 		return deepCopyEntity(entity), nil
 	}
-	//printMutexActions("GetEntityByPath.EntityStorageMutex.Unlock");
+
 	EntityStorageMutex.Unlock()
+
 	// the path seems to result empty , so
 	// we throw an error
 	return types.StorageEntity{}, errors.New("Entity on given path does not exist.")
 }
 
-func GetEntitiesByType(Type string) (map[int]types.StorageEntity, error) {
+func GetEntitiesByType(Type string, context string) (map[int]types.StorageEntity, error) {
 	// retrieve the fitting id
 	entityTypeID, _ := GetTypeIdByString(Type)
 
@@ -227,31 +229,99 @@ func GetEntitiesByType(Type string) (map[int]types.StorageEntity, error) {
 	i := 0
 	EntityStorageMutex.RLock()
 	for _, entity := range EntityStorage[entityTypeID] {
-		mapRet[i] = deepCopyEntity(entity)
-		i++
+		// preset add with true
+		add := true
+
+		// check if context is set , if yes and it doesnt
+		// fit we dont add
+		if context != "" && entity.Context != context {
+			add = false
+		}
+
+		// finally if everything is fine we add the dataset
+		if add {
+			mapRet[i] = deepCopyEntity(entity)
+			i++
+		}
 	}
+
+	// unlock the storage again
 	EntityStorageMutex.RUnlock()
 
 	// return the entity map
 	return mapRet, nil
 }
 
-func GetEntitiesByValue(value string) map[int]types.StorageEntity {
-	// lets prepare the return map
+func GetEntitiesByValue(value string, mode string, context string) (map[int]types.StorageEntity, error) {
+	// lets prepare the return map, counter and regex r
 	entities := make(map[int]types.StorageEntity)
 	i := 0
+	var r *regexp.Regexp
+	var err error = nil
 
 	// first we lock the storage
 	EntityStorageMutex.RLock()
 
+	// if we got mode regex we prepare the regex
+	// by precompiling it to have faster lookups
+	if "regex" == mode {
+		r, err = regexp.Compile(value)
+
+		// check if regex could be compiled successfull,
+		// else return error
+		if nil != err {
+			return map[int]types.StorageEntity{}, err
+		}
+	}
+
 	// than we iterate through all entity storage to find a fitting value
 	if 0 < len(EntityStorage) {
-		for typeID, _ := range EntityStorage {
+		for typeID := range EntityStorage {
 			if 0 < len(EntityStorage[typeID]) {
 				for _, entity := range EntityStorage[typeID] {
-					if entity.Value == value {
-						entities[i] = deepCopyEntity(entity)
-						i++
+					// preset add with true
+					add := true
+
+					// check if context is set , if yes and it doesnt
+					// fit we dont add
+					if context != "" && entity.Context != context {
+						add = false
+					}
+
+					// finally if everything is fine we add the dataset
+					if add {
+						switch mode {
+						case "match":
+							// exact match
+							if entity.Value == value {
+								entities[i] = deepCopyEntity(entity)
+								i++
+							}
+						case "prefix":
+							// starts with
+							if strings.HasPrefix(entity.Value, value) {
+								entities[i] = deepCopyEntity(entity)
+								i++
+							}
+						case "suffix":
+							// ends with
+							if strings.HasSuffix(entity.Value, value) {
+								entities[i] = deepCopyEntity(entity)
+								i++
+							}
+						case "contain":
+							// string contains string
+							if strings.Contains(entity.Value, value) {
+								entities[i] = deepCopyEntity(entity)
+								i++
+							}
+						case "regex":
+							// string matches regex
+							if r.MatchString(entity.Value) {
+								entities[i] = deepCopyEntity(entity)
+								i++
+							}
+						}
 					}
 				}
 			}
@@ -260,7 +330,89 @@ func GetEntitiesByValue(value string) map[int]types.StorageEntity {
 
 	// unlock storage again and return
 	EntityStorageMutex.RUnlock()
-	return entities
+	return entities, nil
+}
+
+func GetEntitiesByTypeAndValue(Type string, value string, mode string, context string) (map[int]types.StorageEntity, error) {
+	// lets prepare the return map, counter and regex r
+	entities := make(map[int]types.StorageEntity)
+	i := 0
+	var r *regexp.Regexp
+	var err error = nil
+
+	// first we lock the storage
+	EntityStorageMutex.RLock()
+
+	// retrieve the fitting id
+	entityTypeID, _ := GetTypeIdByString(Type)
+
+	// if we got mode regex we prepare the regex
+	// by precompiling it to have faster lookups
+	if "regex" == mode {
+		r, err = regexp.Compile(value)
+
+		// check if regex could be compiled successfull,
+		// else return error
+		if nil != err {
+			return map[int]types.StorageEntity{}, err
+		}
+	}
+
+	// than we iterate through all entity storage to find a fitting value
+	if 0 < len(EntityStorage) {
+		if 0 < len(EntityStorage[entityTypeID]) {
+			for _, entity := range EntityStorage[entityTypeID] {
+				// preset add with true
+				add := true
+
+				// check if context is set , if yes and it doesnt
+				// fit we dont add
+				if context != "" && entity.Context != context {
+					add = false
+				}
+
+				// finally if everything is fine we add the dataset
+				if add {
+					switch mode {
+					case "match":
+						// exact match
+						if entity.Value == value {
+							entities[i] = deepCopyEntity(entity)
+							i++
+						}
+					case "prefix":
+						// starts with
+						if strings.HasPrefix(entity.Value, value) {
+							entities[i] = deepCopyEntity(entity)
+							i++
+						}
+					case "suffix":
+						// ends with
+						if strings.HasSuffix(entity.Value, value) {
+							entities[i] = deepCopyEntity(entity)
+							i++
+						}
+					case "contain":
+						// contains
+						if strings.Contains(entity.Value, value) {
+							entities[i] = deepCopyEntity(entity)
+							i++
+						}
+					case "regex":
+						// matches regex
+						if r.MatchString(entity.Value) {
+							entities[i] = deepCopyEntity(entity)
+							i++
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// unlock storage again and return
+	EntityStorageMutex.RUnlock()
+	return entities, nil
 }
 
 func UpdateEntity(entity types.StorageEntity) error {
@@ -497,8 +649,8 @@ func UpdateRelation(srcType int, srcID int, targetType int, targetID int, relati
 							Relation: rel,
 						}
 					}
-					// - - - - - - - - - - - - - - - - -
 
+					// - - - - - - - - - - - - - - - - -
 					// update the data itself
 					rel.Context = relation.Context
 					rel.Properties = relation.Properties
@@ -539,27 +691,24 @@ func GetChildRelationsBySourceTypeAndSourceId(Type int, id int) (map[int]types.S
 			cnt++
 		}
 	}
-	// + + + + + + +
-	//fmt.Println("Relations: ",cnt," - ",len(mapRet))
-	// + + + + + + +
 	return mapRet, nil
 }
 
 func GetParentRelationsByTargetTypeAndTargetId(targetType int, targetID int) (map[int]types.StorageRelation, error) {
 	// initialice the return map
 	var mapRet = make(map[int]types.StorageRelation)
+
 	// set counter for the loop
 	var cnt = 0
+
 	// copy the pool we have to search in
 	// to prevent crashes on RW concurrency
 	// we lock the RelationStorage mutex with
 	// fitting Type. this allows us to proceed
 	// faster since we just block to copy instead
 	// of blocking for the whole process
-	//printMutexActions("GetChildRelationsBySourceTypeAndSourceId.RelationStorageMutex.Lock");
 	RelationStorageMutex.RLock()
 	var pool = RelationRStorage[targetType][targetID]
-	//printMutexActions("GetChildRelationsBySourceTypeAndSourceId.RelationStorageMutex.Unlock");
 	RelationStorageMutex.RUnlock()
 	// for each possible targtType
 	for sourceTypeID, targetTypeMap := range pool {
@@ -573,9 +722,7 @@ func GetParentRelationsByTargetTypeAndTargetId(targetType int, targetID int) (ma
 			cnt++
 		}
 	}
-	// + + + + + + +
-	//fmt.Println("Relations: ",cnt," - ",len(mapRet))
-	// + + + + + + +
+
 	return mapRet, nil
 }
 
@@ -595,82 +742,68 @@ func GetEntityTypes() []string {
 }
 
 func TypeExists(strType string) bool {
-	//printMutexActions("TypeExists.EntityTypeMutex.RLock");
 	EntityTypeMutex.RLock()
 	// lets check if this Type exists
 	if _, ok := EntityRTypes[strType]; ok {
 		// it does lets return it
-		//printMutexActions("TypeExists.EntityTypeMutex.RUnlock");
 		EntityTypeMutex.RUnlock()
 		return true
 	}
-	//printMutexActions("TypeExists.EntityTypeMutex.RUnlock");
+
 	EntityTypeMutex.RUnlock()
 	return false
 }
 
 func EntityExists(Type int, id int) bool {
-	//printMutexActions("TypeExists.EntityTypeMutex.RLock");
 	EntityStorageMutex.RLock()
 	// lets check if this Type exists
 	if _, ok := EntityStorage[Type][id]; ok {
 		// it does lets return it
-		//printMutexActions("TypeExists.EntityTypeMutex.RUnlock");
 		EntityStorageMutex.RUnlock()
 		return true
 	}
-	//printMutexActions("TypeExists.EntityTypeMutex.RUnlock");
+
 	EntityStorageMutex.RUnlock()
 	return false
 }
 
 func TypeIdExists(id int) bool {
-	//printMutexActions("TypeExists.EntityTypeMutex.RLock");
 	EntityTypeMutex.RLock()
 	// lets check if this Type exists
 	if _, ok := EntityTypes[id]; ok {
 		// it does lets return it
-		//printMutexActions("TypeExists.EntityTypeMutex.RUnlock");
 		EntityTypeMutex.RUnlock()
 		return true
 	}
-	//printMutexActions("TypeExists.EntityTypeMutex.RUnlock");
+
 	EntityTypeMutex.RUnlock()
 	return false
 }
 
 func GetTypeIdByString(strType string) (int, error) {
-	//printMutexActions("TypeExists.EntityTypeMutex.RLock");
 	EntityTypeMutex.RLock()
 	// lets check if this Type exists
 	if id, ok := EntityRTypes[strType]; ok {
 		// it does lets return it
-		//printMutexActions("TypeExists.EntityTypeMutex.RUnlock");
 		EntityTypeMutex.RUnlock()
 		return id, nil
 	}
-	//printMutexActions("TypeExists.EntityTypeMutex.RUnlock");
+
 	EntityTypeMutex.RUnlock()
 	return -1, errors.New("Entity Type string does not exist")
 }
 
 func GetTypeStringById(intType int) (*string, error) {
-	//printMutexActions("TypeExists.EntityTypeMutex.RLock");
 	EntityTypeMutex.RLock()
 	// lets check if this Type exists
 	if strType, ok := EntityTypes[intType]; ok {
 		// it does lets return it
-		//printMutexActions("TypeExists.EntityTypeMutex.RUnlock");
 		EntityTypeMutex.RUnlock()
 		return &strType, nil
 	}
-	//printMutexActions("TypeExists.EntityTypeMutex.RUnlock");
+
 	EntityTypeMutex.RUnlock()
 	return nil, errors.New("Entity Type string does not exist")
-}
-
-func printMutexActions(param string) {
-	//fmt.Println(param)
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -788,7 +921,6 @@ func importRelation(payload types.PersistancePayload) {
 	// we are done now we can unlock the entity Types
 	//// - - - - - - - - - - - - - - - -
 	//and finally unlock the relation Type and return
-	//printMutexActions("CreateRelation.RelationStorageMutex.Unlock");
 	RelationStorageMutex.Unlock()
 }
 

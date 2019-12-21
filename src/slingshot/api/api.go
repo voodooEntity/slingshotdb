@@ -17,7 +17,7 @@ func Start() {
 	fmt.Println("> Bootin HTTP API")
 	h := http.NewServeMux()
 
-	// Route: /v1/getChildEntities
+	// Route: /v1/ping
 	h.HandleFunc("/v1/ping", func(w http.ResponseWriter, r *http.Request) {
 		respond("pong", 200, w)
 	})
@@ -155,8 +155,20 @@ func Start() {
 			return
 		}
 
+		// now we get optional params
+		optionalUrlParams := make(map[string]string)
+		optionalUrlParams["context"] = ""
+		urlParams = getOptionalUrlParams(optionalUrlParams, urlParams, r)
+
+		// lets make a default for mode and
+		// overwrite if given
+		context := ""
+		if _, ok := urlParams["context"]; ok {
+			context = urlParams["context"]
+		}
+
 		// ok we seem to be fine on types, lets call the actual getter method
-		responseData, err := mapper.GetEntitiesByType(urlParams["type"])
+		responseData, err := mapper.GetEntitiesByType(urlParams["type"], context)
 		if nil != err {
 			http.Error(w, err.Error(), 422)
 			return
@@ -187,8 +199,28 @@ func Start() {
 			return
 		}
 
+		// now we get optional params
+		optionalUrlParams := make(map[string]string)
+		optionalUrlParams["mode"] = ""
+		optionalUrlParams["context"] = ""
+		urlParams = getOptionalUrlParams(optionalUrlParams, urlParams, r)
+
+		// lets make a default for mode and
+		// overwrite if given
+		mode := "match"
+		if _, ok := urlParams["mode"]; urlParams["mode"] != "" && ok {
+			mode = urlParams["mode"]
+		}
+
+		// lets make a default for mode and
+		// overwrite if given
+		context := ""
+		if _, ok := urlParams["context"]; ok {
+			context = urlParams["context"]
+		}
+
 		// ok we seem to be fine on types, lets call the actual getter method
-		responseData, err := mapper.GetEntitiesByTypeAndValue(urlParams["type"], urlParams["value"])
+		responseData, err := mapper.GetEntitiesByTypeAndValue(urlParams["type"], urlParams["value"], mode, context)
 		if nil != err {
 			http.Error(w, err.Error(), 422)
 			return
@@ -523,8 +555,28 @@ func Start() {
 			return
 		}
 
+		// now we get optional params
+		optionalUrlParams := make(map[string]string)
+		optionalUrlParams["mode"] = ""
+		optionalUrlParams["context"] = ""
+		urlParams = getOptionalUrlParams(optionalUrlParams, urlParams, r)
+
+		// lets make a default for mode and
+		// overwrite if given
+		mode := "match"
+		if _, ok := urlParams["mode"]; urlParams["mode"] != "" && ok {
+			mode = urlParams["mode"]
+		}
+
+		// lets make a default context and
+		// overwrite if given
+		context := ""
+		if _, ok := urlParams["context"]; ok {
+			context = urlParams["context"]
+		}
+
 		// retrieve the entities
-		transport, err := mapper.GetEntitiesByValue(urlParams["value"])
+		transport, err := mapper.GetEntitiesByValue(urlParams["value"], mode, context)
 		if nil != err {
 			http.Error(w, err.Error(), 422)
 			return
