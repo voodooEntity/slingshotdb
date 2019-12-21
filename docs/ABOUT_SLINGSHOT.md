@@ -43,7 +43,7 @@ type Relation struct {
 * `Version` used to tackle race condition problems on multithread clients
 
 #### A simple example of data would be the Simpsons family tree:
-![enter image description here](https://i.postimg.cc/2S8vnFTx/Untitled-Diagram-2.png)
+![Simpsons family tree](scriptjungle.de/slingshotdb/simpsons.png)
 While SlingshotDB allows you to create Network structures, due to the nature of JSON those will be flattened in the output. To retrieve a Network structure you need to read it step by step (in future there will be a network retrievel method). 
 
 ------
