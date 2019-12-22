@@ -82,6 +82,8 @@ After building and starting the database, you are free to use it. You can create
 * Adding offest and length parameters to retrieval HTTP methods that potentially can return giant amounts of data
 * Adding optional filter params for properties
 * Adding a network retrievel function that will ship the data in single dataset lists. This enables the traversing through the data in a non flattened structure.
+* Adding swagger docs
+* Extend mapJson method to include existing entities
 * Extended Docs with more examples
 * `System` methods such as `getMemoryStats` , `shutdown` and more
 * Precompiled binaries for different systems
