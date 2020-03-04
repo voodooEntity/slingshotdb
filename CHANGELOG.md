@@ -1,6 +1,6 @@
 # Changelog    
 ## Release v0.1.2-alpha `04.03.2019`
-* Update of README.md, [About Slingshot](https://github.com/voodooEntity/slingshotdb/blob/master/docs/ABOUT_SLINGSHOT.md) 
+* Update of README.md, [About Slingshot](https://github.com/voodooEntity/slingshotdb/blob/master/docs/ABOUT_SLINGSHOT.md) and [HTTP API](https://github.com/voodooEntity/slingshotdb/blob/master/docs/HTTP_API_V1.md)
 * Adding 'context' filter filter param to multiple methods
     * `getChildEntities` (applies on the child entity not the relation) 
     * `getParentEntities` (applies on the parental entity not the relation)
