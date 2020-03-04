@@ -203,14 +203,16 @@ func CreateEntity(entity types.StorageEntity) (int, error) {
 	return newID, nil
 }
 
-func GetEntityByPath(Type int, id int) (types.StorageEntity, error) {
+func GetEntityByPath(Type int, id int, context string) (types.StorageEntity, error) {
 	// lets check if entity witrh the given path exists
 	EntityStorageMutex.Lock()
 	if entity, ok := EntityStorage[Type][id]; ok {
 		// if yes we return the entity
 		// and nil for error
-		EntityStorageMutex.Unlock()
-		return deepCopyEntity(entity), nil
+		if "" == context || entity.Context == context {
+			EntityStorageMutex.Unlock()
+			return deepCopyEntity(entity), nil
+		}
 	}
 
 	EntityStorageMutex.Unlock()
@@ -543,7 +545,7 @@ func DeleteRelation(sourceType int, sourceID int, targetType int, targetID int) 
 }
 
 func DeleteChildRelations(Type int, id int) error {
-	childRelations, err := GetChildRelationsBySourceTypeAndSourceId(Type, id)
+	childRelations, err := GetChildRelationsBySourceTypeAndSourceId(Type, id, "")
 	if nil != err {
 		return err
 	}
@@ -552,7 +554,7 @@ func DeleteChildRelations(Type int, id int) error {
 }
 
 func DeleteParentRelations(Type int, id int) error {
-	parentRelations, err := GetParentRelationsByTargetTypeAndTargetId(Type, id)
+	parentRelations, err := GetParentRelationsByTargetTypeAndTargetId(Type, id, "")
 	if nil != err {
 		return err
 	}
@@ -665,7 +667,7 @@ func UpdateRelation(srcType int, srcID int, targetType int, targetID int, relati
 	return types.StorageRelation{}, errors.New("Cant update non existing relation")
 }
 
-func GetChildRelationsBySourceTypeAndSourceId(Type int, id int) (map[int]types.StorageRelation, error) {
+func GetChildRelationsBySourceTypeAndSourceId(Type int, id int, context string) (map[int]types.StorageRelation, error) {
 	// initialice the return map
 	var mapRet = make(map[int]types.StorageRelation)
 	// set counter for the loop
@@ -676,25 +678,31 @@ func GetChildRelationsBySourceTypeAndSourceId(Type int, id int) (map[int]types.S
 	// fitting Type. this allows us to proceed
 	// faster since we just block to copy instead
 	// of blocking for the whole process
-	//printMutexActions("GetChildRelationsBySourceTypeAndSourceId.RelationStorageMutex.Lock");
 	RelationStorageMutex.Lock()
 	var pool = RelationStorage[Type][id]
-	//printMutexActions("GetChildRelationsBySourceTypeAndSourceId.RelationStorageMutex.Unlock");
 	RelationStorageMutex.Unlock()
 	// for each possible targtType
 	for _, targetTypeMap := range pool {
 		// for each possible targetId per targetType
 		for _, relation := range targetTypeMap {
-			// copy the relation into the return map
-			// and upcount the int
-			mapRet[cnt] = deepCopyRelation(relation)
-			cnt++
+			// context handling , default add
+			add := true
+			if "" != context && context != relation.Context {
+				add = false
+			}
+			// if context is fine too (in case it got requested)
+			if true == add {
+				// copy the relation into the return map
+				// and upcount the int
+				mapRet[cnt] = deepCopyRelation(relation)
+				cnt++
+			}
 		}
 	}
 	return mapRet, nil
 }
 
-func GetParentRelationsByTargetTypeAndTargetId(targetType int, targetID int) (map[int]types.StorageRelation, error) {
+func GetParentRelationsByTargetTypeAndTargetId(targetType int, targetID int, context string) (map[int]types.StorageRelation, error) {
 	// initialice the return map
 	var mapRet = make(map[int]types.StorageRelation)
 
@@ -709,19 +717,24 @@ func GetParentRelationsByTargetTypeAndTargetId(targetType int, targetID int) (ma
 	// of blocking for the whole process
 	RelationStorageMutex.RLock()
 	var pool = RelationRStorage[targetType][targetID]
-	RelationStorageMutex.RUnlock()
 	// for each possible targtType
 	for sourceTypeID, targetTypeMap := range pool {
 		// for each possible targetId per targetType
 		for sourceRelationID, _ := range targetTypeMap {
+			// context handling, default is adding
+			add := true
+			if "" != context && context != RelationStorage[sourceTypeID][sourceRelationID][targetType][targetID].Context {
+				add = false
+			}
 			// copy the relation into the return map
 			// and upcount the int
-			RelationStorageMutex.RLock()
-			mapRet[cnt] = deepCopyRelation(RelationStorage[sourceTypeID][sourceRelationID][targetType][targetID])
-			RelationStorageMutex.RUnlock()
-			cnt++
+			if true == add {
+				mapRet[cnt] = deepCopyRelation(RelationStorage[sourceTypeID][sourceRelationID][targetType][targetID])
+				cnt++
+			}
 		}
 	}
+	RelationStorageMutex.RUnlock()
 
 	return mapRet, nil
 }

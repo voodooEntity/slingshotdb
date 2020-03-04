@@ -359,8 +359,20 @@ func Start() {
 			return
 		}
 
+		// now we get optional params
+		optionalUrlParams := make(map[string]string)
+		optionalUrlParams["context"] = ""
+		urlParams = getOptionalUrlParams(optionalUrlParams, urlParams, r)
+
+		// lets make a default context and
+		// overwrite if given
+		context := ""
+		if _, ok := urlParams["context"]; ok {
+			context = urlParams["context"]
+		}
+
 		// retrieve the child entities if given
-		transport, err := mapper.GetChildEntities(urlParams["type"], id)
+		transport, err := mapper.GetChildEntities(urlParams["type"], id, context)
 		if nil != err {
 			http.Error(w, err.Error(), 422)
 			return
@@ -398,8 +410,20 @@ func Start() {
 			return
 		}
 
+		// now we get optional params
+		optionalUrlParams := make(map[string]string)
+		optionalUrlParams["context"] = ""
+		urlParams = getOptionalUrlParams(optionalUrlParams, urlParams, r)
+
+		// lets make a default context and
+		// overwrite if given
+		context := ""
+		if _, ok := urlParams["context"]; ok {
+			context = urlParams["context"]
+		}
+
 		// retrieve the child entities if given
-		transport, err := mapper.GetParentEntities(urlParams["type"], id)
+		transport, err := mapper.GetParentEntities(urlParams["type"], id, context)
 		if nil != err {
 			http.Error(w, err.Error(), 422)
 			return
@@ -437,8 +461,20 @@ func Start() {
 			return
 		}
 
+		// now we get optional params
+		optionalUrlParams := make(map[string]string)
+		optionalUrlParams["context"] = ""
+		urlParams = getOptionalUrlParams(optionalUrlParams, urlParams, r)
+
+		// lets make a default context and
+		// overwrite if given
+		context := ""
+		if _, ok := urlParams["context"]; ok {
+			context = urlParams["context"]
+		}
+
 		// retrieve the child entities if given
-		transport, err := mapper.GetRelationsTo(urlParams["type"], id)
+		transport, err := mapper.GetRelationsTo(urlParams["type"], id, context)
 		if nil != err {
 			http.Error(w, err.Error(), 422)
 			return
@@ -525,8 +561,20 @@ func Start() {
 			return
 		}
 
+		// now we get optional params
+		optionalUrlParams := make(map[string]string)
+		optionalUrlParams["context"] = ""
+		urlParams = getOptionalUrlParams(optionalUrlParams, urlParams, r)
+
+		// lets make a default context and
+		// overwrite if given
+		context := ""
+		if _, ok := urlParams["context"]; ok {
+			context = urlParams["context"]
+		}
+
 		// retrieve the child entities if given
-		transport, err := mapper.GetRelationsFrom(urlParams["type"], id)
+		transport, err := mapper.GetRelationsFrom(urlParams["type"], id, context)
 		if nil != err {
 			http.Error(w, err.Error(), 422)
 			return

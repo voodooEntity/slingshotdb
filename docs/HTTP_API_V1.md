@@ -158,7 +158,8 @@ ___
 **Required Parameters:**      
 * `GET` value string    
 
-**Optional parameters:** none      
+**Optional parameters:**       
+* `GET` context string (can be used as filter, requires exact match)    
 **Body:**  none        
 **Return:**    
 ```javascript
@@ -188,7 +189,8 @@ ___
 * `GET` type string    
 * `GET` id int    
 
-**Optional parameters:** none      
+**Optional parameters:**       
+* `GET` context string (can be used as filter, requires exact match), (applies on the parental entity not the relation)     
 **Body:**  none    
 **Return:**    
 ```javascript
@@ -218,7 +220,8 @@ ___
 * `GET` type string    
 * `GET` id int    
 
-**Optional parameters:** none      
+**Optional parameters:**       
+* `GET` context string (can be used as filter, requires exact match), (applies on the child entity not the relation)       
 **Body:**  none        
 **Return:**    
 ```javascript
@@ -507,7 +510,8 @@ ___
 * `GET` type string    
 * `GET` id int    
 
-**Optional parameters:** none      
+**Optional parameters:**       
+* `GET` context string (can be used as filter, requires exact match), (applies on the relation)      
 **Body:**  none        
 **Return:**    
 ```javascript
@@ -535,7 +539,8 @@ ___
 * `GET` type string    
 * `GET` id int    
 
-**Optional parameters:** none      
+**Optional parameters:**       
+* `GET` context string (can be used as filter, requires exact match), (applies on the relation)      
 **Body:**  none        
 **Return:**    
 ```javascript

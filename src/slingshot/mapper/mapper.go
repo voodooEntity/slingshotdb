@@ -20,7 +20,7 @@ func GetEntityByTypeAndId(entityType string, id int) (types.MapperTransport, err
 
 	// get the entity
 	entityTypeID, _ := storage.GetTypeIdByString(entityType)
-	entity, err := storage.GetEntityByPath(entityTypeID, id)
+	entity, err := storage.GetEntityByPath(entityTypeID, id, "")
 	if nil != err {
 		return types.MapperTransport{}, errors.New("Unknown entity id given")
 	}
@@ -48,7 +48,7 @@ func GetEntityByTypeAndId(entityType string, id int) (types.MapperTransport, err
 
 func GetEntitiesRecursive(entityType int, entityID int, depth int, relations *[]types.MapperRelation) (types.MapperEntity, error) {
 	// lets  get the entity
-	entity, err := storage.GetEntityByPath(entityType, entityID)
+	entity, err := storage.GetEntityByPath(entityType, entityID, "")
 
 	// if it doesnt exist we stop
 	if err != nil {
@@ -71,7 +71,7 @@ func GetEntitiesRecursive(entityType int, entityID int, depth int, relations *[]
 	// we retrieve all relations from this entity
 	if 0 < depth {
 		depth--
-		tmpRelations, _ := storage.GetChildRelationsBySourceTypeAndSourceId(entity.Type, entity.ID)
+		tmpRelations, _ := storage.GetChildRelationsBySourceTypeAndSourceId(entity.Type, entity.ID, "")
 
 		// lets check if we got anyrelations
 		if 0 != len(tmpRelations) {
@@ -336,7 +336,7 @@ func MapEntitiesRecursive(entity types.MapperEntity, parentType int, parentID in
 	return newID, nil
 }
 
-func GetChildEntities(strType string, id int) (types.MapperTransport, error) {
+func GetChildEntities(strType string, id int, context string) (types.MapperTransport, error) {
 	// first we check if the entity type exists
 	Type, err := storage.GetTypeIdByString(strType)
 	if err != nil {
@@ -350,7 +350,7 @@ func GetChildEntities(strType string, id int) (types.MapperTransport, error) {
 	}
 
 	// ok the entity seems to exist lets retrieve all the child relations
-	relations, err := storage.GetChildRelationsBySourceTypeAndSourceId(Type, id)
+	relations, err := storage.GetChildRelationsBySourceTypeAndSourceId(Type, id, "")
 	if 0 == len(relations) {
 		// if we dont find any we return an empty Transport
 		return types.MapperTransport{
@@ -368,9 +368,9 @@ func GetChildEntities(strType string, id int) (types.MapperTransport, error) {
 
 	for id := range relations {
 		// lets retrieve the entity
-		entity, err := storage.GetEntityByPath(relations[id].TargetType, relations[id].TargetID)
+		entity, err := storage.GetEntityByPath(relations[id].TargetType, relations[id].TargetID, context)
 		if nil != err {
-			return types.MapperTransport{}, err
+			continue
 		}
 
 		// make the type readable and add the entity to our transport struct
@@ -390,7 +390,7 @@ func GetChildEntities(strType string, id int) (types.MapperTransport, error) {
 	return transport, nil
 }
 
-func GetParentEntities(strType string, id int) (types.MapperTransport, error) {
+func GetParentEntities(strType string, id int, context string) (types.MapperTransport, error) {
 	// first we check if the entity type exists
 	Type, err := storage.GetTypeIdByString(strType)
 	if err != nil {
@@ -407,7 +407,7 @@ func GetParentEntities(strType string, id int) (types.MapperTransport, error) {
 	}
 
 	// ok the entity seems to exist lets retrieve all the child relations
-	relations, err := storage.GetParentRelationsByTargetTypeAndTargetId(Type, id)
+	relations, err := storage.GetParentRelationsByTargetTypeAndTargetId(Type, id, "")
 	if 0 == len(relations) {
 		// if we dont find any we return an empty Transport
 		return types.MapperTransport{
@@ -425,9 +425,9 @@ func GetParentEntities(strType string, id int) (types.MapperTransport, error) {
 
 	for id := range relations {
 		// lets retrieve the entity
-		entity, err := storage.GetEntityByPath(relations[id].SourceType, relations[id].SourceType)
+		entity, err := storage.GetEntityByPath(relations[id].SourceType, relations[id].SourceType, context)
 		if nil != err {
-			return types.MapperTransport{}, err
+			continue
 		}
 
 		// make the type readable and add the entity to our transport struct
@@ -555,7 +555,7 @@ func DeleteRelation(srcType string, srcID int, targetType string, targetID int) 
 	return nil
 }
 
-func GetRelationsTo(strType string, id int) (types.MapperTransport, error) {
+func GetRelationsTo(strType string, id int, context string) (types.MapperTransport, error) {
 	// first we check if the entity type exists
 	Type, err := storage.GetTypeIdByString(strType)
 	if err != nil {
@@ -572,7 +572,7 @@ func GetRelationsTo(strType string, id int) (types.MapperTransport, error) {
 	}
 
 	// ok the entity seems to exist lets retrieve all the child relations
-	relations, err := storage.GetParentRelationsByTargetTypeAndTargetId(Type, id)
+	relations, err := storage.GetParentRelationsByTargetTypeAndTargetId(Type, id, context)
 	if 0 == len(relations) {
 		// if we dont find any we return an empty Transport
 		return types.MapperTransport{
@@ -604,7 +604,7 @@ func GetRelationsTo(strType string, id int) (types.MapperTransport, error) {
 	return transport, nil
 }
 
-func GetRelationsFrom(strType string, id int) (types.MapperTransport, error) {
+func GetRelationsFrom(strType string, id int, context string) (types.MapperTransport, error) {
 	// first we check if the entity type exists
 	Type, err := storage.GetTypeIdByString(strType)
 	if err != nil {
@@ -621,7 +621,7 @@ func GetRelationsFrom(strType string, id int) (types.MapperTransport, error) {
 	}
 
 	// ok the entity seems to exist lets retrieve all the child relations
-	relations, err := storage.GetChildRelationsBySourceTypeAndSourceId(Type, id)
+	relations, err := storage.GetChildRelationsBySourceTypeAndSourceId(Type, id, context)
 	if 0 == len(relations) {
 		// if we dont find any we return an empty Transport
 		return types.MapperTransport{

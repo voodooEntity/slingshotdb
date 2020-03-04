@@ -78,15 +78,12 @@ Example file:
 After building and starting the database, you are free to use it. You can create your own code to use the API based on the [HTTP API v1 docs](https://github.com/voodooEntity/slingshotdb/blob/master/docs/HTTP_API_V1.md), or if your environment is PHP you can use the 'voodooEntity/slingshotdb-php-sdk'. As time goes by i plan to add more SDK's (golang, javascript, ....)
 
 ## Future plans
-* Adding Context filter param to all retrieval HTTP methods
+* Extend binary to create storage directories intially
+* Extend mapJson method to include existing entities
+* Adding a network retrievel function that will ship the data in single dataset lists. This enables the traversing through the data in a non flattened structure.
 * Adding offest and length parameters to retrieval HTTP methods that potentially can return giant amounts of data
 * Adding optional filter params for properties
-* Adding a network retrievel function that will ship the data in single dataset lists. This enables the traversing through the data in a non flattened structure.
-* Adding swagger docs
-* Extend mapJson method to include existing entities
 * Extended Docs with more examples
 * `System` methods such as `getMemoryStats` , `shutdown` and more
-* Precompiled binaries for different systems
 * A simple tool to visualize the data (probably browser based)
 * ..... and much more =)
-
