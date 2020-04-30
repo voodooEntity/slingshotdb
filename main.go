@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"slingshot/api"
+	"slingshot/config"
 	"slingshot/storage"
 )
 
 func main() {
-	fmt.Println("> Starting SlingshotDB ")
+	config.Logger.Println("> Starting SlingshotDB ")
 	storage.Boot()
 	api.Start()
 }

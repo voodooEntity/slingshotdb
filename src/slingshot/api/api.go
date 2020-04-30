@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"slingshot/config"
@@ -14,7 +13,7 @@ import (
 )
 
 func Start() {
-	fmt.Println("> Bootin HTTP API")
+	config.Logger.Print("> Bootin HTTP API")
 	h := http.NewServeMux()
 
 	// Route: /v1/ping
@@ -112,7 +111,7 @@ func Start() {
 		// retrieve data from request
 		body, err := getRequestBody(r)
 		if nil != err {
-			fmt.Print(err.Error())
+			config.Logger.Print(err.Error())
 			http.Error(w, "Malformed or no body. ", 422)
 			return
 		}
@@ -241,7 +240,7 @@ func Start() {
 		// retrieve data from request
 		body, err := getRequestBody(r)
 		if nil != err {
-			fmt.Print(err.Error())
+			config.Logger.Print(err.Error())
 			http.Error(w, "Malformed or no body. ", 422)
 			return
 		}
@@ -306,7 +305,7 @@ func Start() {
 		// retrieve data from request
 		body, err := getRequestBody(r)
 		if nil != err {
-			fmt.Print(err.Error())
+			config.Logger.Print(err.Error())
 			http.Error(w, "Malformed or no body. ", 422)
 			return
 		}
@@ -315,7 +314,7 @@ func Start() {
 		var newEntity types.MapperEntity
 		err = json.Unmarshal(body, &newEntity)
 		if nil != err {
-			fmt.Print(err.Error())
+			config.Logger.Print(err.Error())
 			http.Error(w, "Malformed json body.", 422)
 			return
 		}
@@ -666,7 +665,7 @@ func Start() {
 		// retrieve data from request
 		body, err := getRequestBody(r)
 		if nil != err {
-			fmt.Print(err.Error())
+			config.Logger.Print(err.Error())
 			http.Error(w, "Malformed or no body. ", 422)
 			return
 		}
@@ -675,7 +674,7 @@ func Start() {
 		var newRelation types.MapperRelation
 		err = json.Unmarshal(body, &newRelation)
 		if nil != err {
-			fmt.Print(err.Error())
+			config.Logger.Print(err.Error())
 			http.Error(w, "Malformed json body.", 422)
 			return
 		}
@@ -701,7 +700,7 @@ func Start() {
 		// retrieve data from request
 		body, err := getRequestBody(r)
 		if nil != err {
-			fmt.Print(err.Error())
+			config.Logger.Print(err.Error())
 			http.Error(w, "Malformed or no body. ", 422)
 			return
 		}
@@ -710,7 +709,7 @@ func Start() {
 		var newRelation types.MapperRelation
 		err = json.Unmarshal(body, &newRelation)
 		if nil != err {
-			fmt.Print(err.Error())
+			config.Logger.Print(err.Error())
 			http.Error(w, "Malformed json body.", 422)
 			return
 		}
@@ -780,7 +779,7 @@ func Start() {
 	// building server listen string by
 	// config values and print it - than listen
 	connectString := buildHttpListenConfigString()
-	fmt.Println("> Server listening settings by config (", connectString, ")")
+	config.Logger.Println("> Server listening settings by config (", connectString, ")")
 	http.ListenAndServe(connectString, h)
 }
 
@@ -812,7 +811,7 @@ func respond(message string, responseCode int, w http.ResponseWriter) {
 	messageBytes := []byte(message)
 	_, err := w.Write(messageBytes)
 	if nil != err {
-		fmt.Print(err)
+		config.Logger.Print(err)
 	}
 }
 
@@ -829,7 +828,7 @@ func respondOk(data types.MapperTransport, w http.ResponseWriter) {
 	w.WriteHeader(200)
 	_, err = w.Write(responseData)
 	if nil != err {
-		fmt.Print(err)
+		config.Logger.Print(err)
 	}
 }
 

@@ -2,7 +2,6 @@ package persistance
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"slingshot/config"
@@ -19,12 +18,12 @@ func Boot() chan types.PersistancePayload {
 	// first we make sure we have a storage directories and they are writable
 	err := handleDirectory("storage/entities/")
 	if nil != err {
-		fmt.Println(err.Error())
+		config.Logger.Print(err.Error())
 		os.Exit(1)
 	}
 	err = handleDirectory("storage/relations/")
 	if nil != err {
-		fmt.Println(err.Error())
+		config.Logger.Print(err.Error())
 		os.Exit(1)
 	}
 
@@ -44,7 +43,7 @@ func Boot() chan types.PersistancePayload {
 // - - - - - - - - - - - - - - - - - - - - - - - - - -
 //  worker
 func startWorker(importChan chan types.PersistancePayload) {
-	fmt.Println("> Persistance worker started")
+	config.Logger.Print("> Persistance worker started")
 	// first we import existing data
 	importData(importChan)
 	// now we handle further persistance
@@ -60,7 +59,7 @@ func startWorker(importChan chan types.PersistancePayload) {
 			err = handleEntityType(elem)
 		}
 		if nil != err {
-			fmt.Println(err.Error())
+			config.Logger.Print(err.Error())
 			os.Exit(1)
 		}
 	}
@@ -283,22 +282,22 @@ func handleEntityType(payload types.PersistancePayload) error {
 // import the persistance data
 func importData(importChan chan types.PersistancePayload) {
 	// first we import the entity types
-	fmt.Println("> - Importing entity types")
+	config.Logger.Print("> - Importing entity types")
 	importEntityTypes(importChan)
 
 	// than the entities
-	fmt.Println("> - Importing entities")
+	config.Logger.Print("> - Importing entities")
 	importEntities(importChan)
 
 	// and finally the relations
-	fmt.Println("> - Importing relations")
+	config.Logger.Print("> - Importing relations")
 	importRelations(importChan)
 
 	// finally we check on the channel until its empty to close it
 	for 0 < len(importChan) {
 		time.Sleep(1000000)
 	}
-	fmt.Println("> Closing import channel")
+	config.Logger.Print("> Closing import channel")
 	close(importChan)
 
 }
@@ -311,7 +310,7 @@ func importEntityTypes(importChan chan types.PersistancePayload) {
 
 	// if it is an error
 	if nil != err {
-		fmt.Println(err.Error())
+		config.Logger.Print(err.Error())
 		os.Exit(1)
 	}
 
@@ -319,7 +318,7 @@ func importEntityTypes(importChan chan types.PersistancePayload) {
 	var entityTypes map[int]string
 	err = json.Unmarshal(entityTypesJsonBytes, &entityTypes)
 	if nil != err {
-		fmt.Print(err.Error())
+		config.Logger.Print(err.Error())
 		os.Exit(1)
 	}
 
@@ -360,7 +359,7 @@ func importEntities(importChan chan types.PersistancePayload) {
 					var entity types.StorageEntity
 					err := json.Unmarshal(entityFile, &entity)
 					if nil != err {
-						fmt.Print(err.Error())
+						config.Logger.Print(err.Error())
 						os.Exit(1)
 					}
 
@@ -423,7 +422,7 @@ func importRelations(importChan chan types.PersistancePayload) {
 									var relation types.StorageRelation
 									err := json.Unmarshal(relationBytes, &relation)
 									if nil != err {
-										fmt.Print(err.Error())
+										config.Logger.Print(err.Error())
 										os.Exit(1)
 									}
 
@@ -467,7 +466,7 @@ func readFile(filePath string) ([]byte, error) {
 	// first we read the json data
 	data, err := ioutil.ReadFile(filePath)
 	if nil != err {
-		fmt.Println("> Error reading persistant storage file. Check your permissions")
+		config.Logger.Print("> Error reading persistant storage file. Check your permissions")
 		os.Exit(1)
 	}
 	return data, nil
