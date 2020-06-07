@@ -3,7 +3,6 @@ package persistance
 import (
 	"encoding/json"
 	"io/ioutil"
-	"math"
 	"os"
 	"slingshot/config"
 	"slingshot/types"
@@ -14,9 +13,6 @@ import (
 // persistance flag
 var PersistanceChan chan types.PersistancePayload
 var PersistanceFlag bool
-
-// split amount to mess with inodes
-var splitAmount = 4000
 
 func Boot() chan types.PersistancePayload {
 	// first we make sure we have a storage directories and they are writable
@@ -92,13 +88,6 @@ func createEntity(entity types.StorageEntity) error {
 		return err
 	}
 
-	// than we handle the splitdir
-	path = path + strconv.Itoa(getSplitDir(splitAmount,entity.ID)) + "/"
-	err = handleDirectory(path)
-	if nil != err {
-		return err
-	}
-
 	// path seems to exist , lets create
 	// the entity json
 	data, err := json.Marshal(entity)
@@ -119,7 +108,7 @@ func createEntity(entity types.StorageEntity) error {
 
 func deleteEntity(Type int, id int) error {
 	// first we handle the path
-	path := "storage/entities/" + strconv.Itoa(Type) + "/" + strconv.Itoa(id) + "/" + strconv.Itoa(getSplitDir(splitAmount,id))
+	path := "storage/entities/" + strconv.Itoa(Type) + "/" + strconv.Itoa(id)
 	var err = os.Remove(path)
 	if nil != err {
 		return err
@@ -130,7 +119,7 @@ func deleteEntity(Type int, id int) error {
 
 func updateEntity(entity types.StorageEntity) error {
 	// first we handle the path
-	path := "storage/entities/" + strconv.Itoa(entity.Type) + "/" + strconv.Itoa(getSplitDir(splitAmount,entity.ID)) + "/"
+	path := "storage/entities/" + strconv.Itoa(entity.Type) + "/"
 	err := handleDirectory(path)
 	if nil != err {
 		return err
@@ -156,7 +145,7 @@ func updateEntity(entity types.StorageEntity) error {
 
 func createRelation(relation types.StorageRelation) error {
 	// first we handle the path
-	path := "storage/relations/" + strconv.Itoa(relation.SourceType) + "/" + strconv.Itoa(relation.SourceID) + "/" + strconv.Itoa(relation.TargetType) + "/" + strconv.Itoa(getSplitDir(splitAmount,relation.TargetID))
+	path := "storage/relations/" + strconv.Itoa(relation.SourceType) + "/" + strconv.Itoa(relation.SourceID) + "/" + strconv.Itoa(relation.TargetType)
 	err := handleDirectory(path)
 	if nil != err {
 		return err
@@ -182,7 +171,7 @@ func createRelation(relation types.StorageRelation) error {
 
 func updateRelation(relation types.StorageRelation) error {
 	// first we handle the path
-	path := "storage/relations/" + strconv.Itoa(relation.SourceType) + "/" + strconv.Itoa(relation.SourceID) + "/" + strconv.Itoa(relation.TargetType) + "/" + strconv.Itoa(getSplitDir(splitAmount,relation.TargetID))
+	path := "storage/relations/" + strconv.Itoa(relation.SourceType) + "/" + strconv.Itoa(relation.SourceID) + "/" + strconv.Itoa(relation.TargetType)
 	err := handleDirectory(path)
 	if nil != err {
 		return err
@@ -208,7 +197,7 @@ func updateRelation(relation types.StorageRelation) error {
 
 func deleteRelation(srcType int, srcID int, targetType int, targetID int) error {
 	// first we handle the path
-	path := "storage/relations/" + strconv.Itoa(srcType) + "/" + strconv.Itoa(srcID) + "/" + strconv.Itoa(targetType) + "/" + strconv.Itoa(targetID) + "/" + strconv.Itoa(getSplitDir(splitAmount,targetID))
+	path := "storage/relations/" + strconv.Itoa(srcType) + "/" + strconv.Itoa(srcID) + "/" + strconv.Itoa(targetType) + "/" + strconv.Itoa(targetID)
 	var err = os.Remove(path)
 	if nil != err {
 		return err
@@ -356,41 +345,31 @@ func importEntities(importChan chan types.PersistancePayload) {
 		for _, entityType := range entityTypeDirs {
 			// now we check the directory
 			entityTypePath := path + "/" + entityType
+			entityIDs, _ := readDir(entityTypePath)
 
-			// moving through the split directories 
-			splitDirs, _ := readDir(entityTypePath)
-			if 0 < len(splitDirs) {
-				for _,splitDir := range splitDirs {
-					splitDirPath := entityTypePath + "/" + splitDir
+			// if there are any
+			if 0 < len(entityIDs) {
+				// now we talk through the entity IDs
+				for _, entityID := range entityIDs {
+					// read the file
+					file := entityTypePath + "/" + entityID
+					entityFile, _ := readFile(file)
 
-					// through the entity IDs
-					entityIDs, _ := readDir(splitDirPath)
-
-					// if there are any
-					if 0 < len(entityIDs) {
-						// now we talk through the entity IDs
-						for _, entityID := range entityIDs {
-							// read the file
-							file := splitDirPath + "/" + entityID
-							entityFile, _ := readFile(file)
-
-							// seems fine lets unmarshall it
-							var entity types.StorageEntity
-							err := json.Unmarshal(entityFile, &entity)
-							if nil != err {
-								config.Logger.Print(err.Error())
-								os.Exit(1)
-							}
-
-							// ok this worked, so we pack it
-							// into a persistance payload and send it
-							payload := types.PersistancePayload{
-								Type:   "Entity",
-								Entity: entity,
-							}
-							importChan <- payload
-						}
+					// seems fine lets unmarshall it
+					var entity types.StorageEntity
+					err := json.Unmarshal(entityFile, &entity)
+					if nil != err {
+						config.Logger.Print(err.Error())
+						os.Exit(1)
 					}
+
+					// ok this worked, so we pack it
+					// into a persistance payload and send it
+					payload := types.PersistancePayload{
+						Type:   "Entity",
+						Entity: entity,
+					}
+					importChan <- payload
 				}
 			}
 		}
@@ -428,48 +407,34 @@ func importRelations(importChan chan types.PersistancePayload) {
 						for _, targetTypeID := range targetTypeIDs {
 							// get then fitting target ids
 							targetTypePath := srcIDpath + targetTypeID + "/"
+							targetIDs, _ := readDir(targetTypePath)
 
-							// than we handle the split dircectories
-							splitDirs,_ := readDir(targetTypePath)
+							// if there are any
+							if 0 < len(targetIDs) {
+								// walk through all the target ID's
+								for _, targetID := range targetIDs {
+									// finally we made it !!!! epic...
+									// ltes build the path and retrieve the relation
+									fullpath := targetTypePath + targetID
+									relationBytes, _ := readFile(fullpath)
 
-							//if there are any
-							if 0 < len(splitDirs) {
-								// walk through the split dirs
-								for _,splitDir := range splitDirs {
-									splitDirPath := targetTypePath +  splitDir + "/"
-									targetIDs, _ := readDir(splitDirPath)
-
-									// if there are any
-									if 0 < len(targetIDs) {
-										// walk through all the target ID's
-										for _, targetID := range targetIDs {
-											// finally we made it !!!! epic...
-											// ltes build the path and retrieve the relation
-											fullpath := splitDirPath + targetID
-											relationBytes, _ := readFile(fullpath)
-		
-											// seems fine lets unmarshall it
-											var relation types.StorageRelation
-											err := json.Unmarshal(relationBytes, &relation)
-											if nil != err {
-												config.Logger.Print(err.Error())
-												os.Exit(1)
-											}
-		
-											// ok this worked, so we pack it
-											// into a persistance payload and send it
-											payload := types.PersistancePayload{
-												Type:     "Relation",
-												Relation: relation,
-											}
-											importChan <- payload
-										}
+									// seems fine lets unmarshall it
+									var relation types.StorageRelation
+									err := json.Unmarshal(relationBytes, &relation)
+									if nil != err {
+										config.Logger.Print(err.Error())
+										os.Exit(1)
 									}
+
+									// ok this worked, so we pack it
+									// into a persistance payload and send it
+									payload := types.PersistancePayload{
+										Type:     "Relation",
+										Relation: relation,
+									}
+									importChan <- payload
 								}
-
 							}
-					
-
 
 						}
 					}
@@ -500,26 +465,9 @@ func readDir(root string) ([]string, error) {
 func readFile(filePath string) ([]byte, error) {
 	// first we read the json data
 	data, err := ioutil.ReadFile(filePath)
-	
 	if nil != err {
-		config.Logger.Print("> Error reading persistant storage file. Check your permissions for '" + filePath + "'")
+		config.Logger.Print("> Error reading persistant storage file. Check your permissions")
 		os.Exit(1)
 	}
 	return data, nil
-}
-
-func getSplitDir(split int,id int) (int){
-	// are we below  or even to 
-	// the split value than we just
-	// return 1
-	if id <= split {
-		return 1
-	}
-	
-	// or we calculate the split value dynamicly
-    calc := float64(id) / float64(split)
-	dir := math.Ceil(calc)
-
-	// and return it as int
-	return int(dir)
 }
